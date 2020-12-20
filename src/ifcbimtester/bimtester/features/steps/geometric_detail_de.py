@@ -15,3 +15,9 @@ def step_impl(context, ifc_class, representation_class):
         ifc_class,
         representation_class
     )
+
+
+@step("Alle {ifc_class} Bauteile müssen geometrische Repräsentationen ohne Fehler haben")
+def step_impl(context, ifc_class):
+    switch_locale(context.localedir, the_lang)
+    gdm.eleclass_has_geometric_representation_without_errors(context, ifc_class)
