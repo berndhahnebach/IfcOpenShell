@@ -1,6 +1,6 @@
 import gettext
 import ifcopenshell
-import ifcopenshell.express
+# import ifcopenshell.express
 import ifcopenshell.util
 import ifcopenshell.util.element
 

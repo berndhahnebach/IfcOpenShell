@@ -1,5 +1,5 @@
 import ifcopenshell.util.geolocation
-import ifcopenshell.util.placement
+# import ifcopenshell.util.placement
 from behave import step
 
 from utils import assert_number
