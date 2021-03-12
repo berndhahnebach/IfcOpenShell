@@ -110,14 +110,20 @@ def assert_elements(
     message_no_elems,
     parameter=None
 ):
-    if elemcount > 0 and falsecount == 0:
-        return  # Test OK
-    elif elemcount == 0:
-        assert False, (
-            message_no_elems.format(
-                ifc_class=ifc_class
-            )
-        )
+    out_falseelems = "\n"
+    for e in falseelems:
+        out_falseelems += e + "\n"
+    # old elemcount == 0 erzeugt einen nicht bestandenen test
+    # if elemcount > 0 and falsecount == 0:
+    #     return # Test OK
+    # elif elemcount == 0:
+    #     assert False, (
+    #         message_no_elems.format(
+    #             ifc_class=ifc_class
+    #         )
+    #     )
+    if falsecount == 0:
+        return # test OK, test ist auch OK fuer elemcount == 0 !!!
     elif falsecount == elemcount:
         if parameter is None:
             assert False, (
@@ -141,7 +147,7 @@ def assert_elements(
                     falsecount=falsecount,
                     elemcount=elemcount,
                     ifc_class=ifc_class,
-                    falseelems=falseelems,
+                    falseelems=out_falseelems,
                 )
             )
         else:
@@ -150,7 +156,7 @@ def assert_elements(
                     falsecount=falsecount,
                     elemcount=elemcount,
                     ifc_class=ifc_class,
-                    falseelems=falseelems,
+                    falseelems=out_falseelems,
                     parameter=parameter
                 )
             )

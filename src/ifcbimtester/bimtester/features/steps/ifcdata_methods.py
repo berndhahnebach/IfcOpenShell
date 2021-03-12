@@ -13,6 +13,9 @@ def provide_ifcfile_by_argument(context):
 
 def has_ifcdata_specific_schema(context, target_schema):
     real_schema = IfcFile.get().schema
+    if real_schema != target_schema:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip("Falsches IFC-Schema, Abbruch.")
     assert real_schema == target_schema, (
         _("We expected a schema of {} but instead got {}")
         .format(target_schema, real_schema)

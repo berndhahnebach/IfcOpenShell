@@ -44,15 +44,72 @@ def before_all(context):
         context.ifcbasename,
     )
 
-    # set up smart view file
-    context.smview_file = os.path.join(
-        context.outpath,
-        context.ifcbasename + ".bcsv"
+    # set up failure information file
+    context.thefailurefile = os.path.join(
+        "//fbj.local", "dats", "Daten FBJ", "04 Briefkasten", "BHA", "BIMTesting", "failure.txt"
     )
-    create_zoom_smartview(
-        context.smview_file,
+    failurefile = open(context.thefailurefile, "a")
+    failurefile.close()
+
+    create_logfile(
+        context.thelogfile,
         context.ifcbasename,
     )
+
+
+    # there might be a better way to skip after a failure of a certain scenario
+    # set skip_all_bimtesting to False
+    context.skip_all_bimtesting = False
+
+
+def after_all(context):
+    pass
+    # print(context.__dir__())
+
+
+def before_feature(context, feature):
+    print("Start feature: {}".format(feature.name))
+
+    # set up smart view file
+    smartview_name = context.ifcbasename + "_" + feature.name
+    context.smview_file = os.path.join(
+        context.outpath,
+        smartview_name + ".bcsv"
+    )
+    # print("SmartView file: {}".format(context.smview_file))
+    create_zoom_smartview(
+        context.smview_file,
+        smartview_name,
+    )
+
+
+def after_feature(context, feature):
+    if feature.name == "Basisdaten" and feature.status == "failed":
+        failurefile = open(context.thefailurefile, "a")
+        failurefile.write("{}\n".format(context.ifcbasename))
+        failurefile.close()
+    print("Finished feature: {}".format(feature.name))
+
+
+"""
+# in den steps das skip implementiert, ifc exporter allplan und ifc schema type
+# https://behave.readthedocs.io/en/stable/new_and_noteworthy_v1.2.5.html?highlight=skip#exclude-feature-scenario-at-runtime
+def before_scenario(context, scenario):
+    # some how the variable context.skip_all_bimtesting does not keep its value ... 
+    # the scope of the context scenario is only the scenario
+    # https://behave.readthedocs.io/en/stable/context_attributes.html?highlight=after_all#user-attributes
+    # print(context.skip_all_bimtesting)
+    # if context.skip_all_bimtesting is True:
+    #     scenario.skip()
+    print(scenario.continue_after_failed_step)
+
+def after_scenario(context, scenario):
+    if scenario.name == "Bereitstellen von IFC-Daten":
+        if scenario.status == "failed":
+            print("Found failed Szenario: 'Bereitstellen von IFC-Daten', all other should be skiped")
+            context.skip_all_bimtesting = True
+            scenario.continue_after_failed_step = False
+"""
 
 
 def after_step(context, step):

@@ -28,7 +28,7 @@ def step_impl(context, file):
         assert False, f"The file {file} could not be loaded"
 
 
-@given("The IFC file has been provided through an argument")
+@given('The IFC file has been provided through an argument')
 def step_impl(context):
     switch_locale(context.localedir, the_lang)
     idm.provide_ifcfile_by_argument(context)
@@ -42,7 +42,7 @@ def step_impl(context):
         assert False, f"The path {context.config.userdata.get('path')} could not be loaded"
 
 
-@step("IFC data must use the {schema} schema")
+@step('IFC data must use the "{schema}" schema')
 def step_impl(context, schema):
     switch_locale(context.localedir, the_lang)
     idm.has_ifcdata_specific_schema(context, schema)
@@ -53,12 +53,12 @@ def step_impl(context, file):
     pass
 
 
-@step("No further requirements are specified because {reason}")
+@step('No further requirements are specified because "{reason}"')
 def step_impl(context, reason):
     pass
 
 
-@step("The IFC file must be exported by application full name {fullname}")
+@step('The IFC file must be exported by application full name "{fullname}"')
 def step_impl(context, fullname):
 
     real_fullname = IfcFile.get().by_type("IfcApplication")[0].ApplicationFullName
@@ -69,7 +69,7 @@ def step_impl(context, fullname):
     )
 
 
-@step("The IFC file must be exported by application identifier {identifier}")
+@step('The IFC file must be exported by application identifier "{identifier}"')
 def step_impl(context, identifier):
 
     real_identifier = IfcFile.get().by_type("IfcApplication")[0].ApplicationIdentifier
@@ -80,7 +80,7 @@ def step_impl(context, identifier):
     )
 
 
-@step("The IFC file must be exported by the application version {version}")
+@step('The IFC file must be exported by the application version "{version}"')
 def step_impl(context, version):
 
     real_version = IfcFile.get().by_type("IfcApplication")[0].Version
@@ -91,7 +91,7 @@ def step_impl(context, version):
     )
 
 
-@step("IFC data header must have a file description of {header_file_description} such as the new Allplan IFC exporter creates it")
+@step('IFC data header must have a file description of "{header_file_description}" such as the new Allplan IFC exporter creates it')
 def step_impl(context, header_file_description):
     
     is_header_file_description = IfcFile.get().wrapped_data.header.file_description.description
