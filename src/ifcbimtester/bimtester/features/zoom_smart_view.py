@@ -1,7 +1,9 @@
 import fileinput
 
 
-def create_zoom_smartview(sm_file, ifcbasename):
+def create_zoom_set_of_smartviews(sm_file, smartviewset_name):
+
+    # smartviewset_name: is the directory name in Zoom the SmartViews are in
 
     smf = open(sm_file, "w")
     smf.write('<?xml version="1.0"?>\n')
@@ -14,7 +16,7 @@ def create_zoom_smartview(sm_file, ifcbasename):
     smf.write("\n")
     smf.write("<SMARTVIEWSETS>\n")
     smf.write("    <SMARTVIEWSET>\n")
-    smf.write("        <TITLE>BIMTester {}</TITLE>\n".format(ifcbasename))
+    smf.write("        <TITLE>BIMTester {}</TITLE>\n".format(smartviewset_name))
     smf.write("        <DESCRIPTION></DESCRIPTION>\n")
     smf.write("        <GUID>a2ddfaf7-97f2-4519-aabd-f2d94f6b4d6b</GUID>\n")
     smf.write("        <MODIFICATIONDATE>2020-10-30T13:23:30")
@@ -27,16 +29,20 @@ def create_zoom_smartview(sm_file, ifcbasename):
     smf.close()
 
 
-def append_zoom_smartview(sm_file, step_name, false_elements_guid):
+def add_smartview(sm_file, smartview_name, guids):
+
+    # smartview_name: is the name of the SmartView in Zoom
+    # guids: List of guids
+    # model will be grey and transparent, the guids objs will be red and not transparent
 
     # build the smartview string
     smview_string = "            <SMARTVIEW>\n"
     smview_string += (
         "                <TITLE>GUID filter, {}</TITLE>\n"
-        .format(step_name)
+        .format(smartview_name)
     )
     smview_string += "{}\n".format(each_smartview_string_before)
-    for guid in false_elements_guid:
+    for guid in guids:
         smview_string += (
             "{}{}{}\n".format(
                 rule_string_before,

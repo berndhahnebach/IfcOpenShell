@@ -4,8 +4,8 @@ from behave.model import Scenario
 
 from logfile import create_logfile
 from logfile import append_logfile
-from zoom_smart_view import append_zoom_smartview
-from zoom_smart_view import create_zoom_smartview
+from zoom_smart_view import create_zoom_set_of_smartviews
+from zoom_smart_view import add_smartview
 
 
 this_path = os.path.dirname(os.path.realpath(__file__))
@@ -77,7 +77,7 @@ def before_feature(context, feature):
         smartview_name + ".bcsv"
     )
     # print("SmartView file: {}".format(context.smview_file))
-    create_zoom_smartview(
+    create_zoom_set_of_smartviews(
         context.smview_file,
         smartview_name,
     )
@@ -123,8 +123,9 @@ def after_step(context, step):
         if hasattr(context, "falseguids"):
             # print(context.falseguids)
 
-            append_zoom_smartview(
+            add_smartview(
                 context.smview_file,
                 step.name,
                 context.falseguids
             )
+    print("Finished step: {}".format(step.name))
