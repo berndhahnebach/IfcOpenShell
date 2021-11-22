@@ -95,32 +95,57 @@ def assert_elements(
     message_all_falseelems,
     message_some_falseelems,
     message_no_elems,
-    parameter=None,
+    parameter=None
 ):
-    if elemcount > 0 and falsecount == 0:
-        return  # Test OK
-    elif elemcount == 0:
-        assert False, message_no_elems.format(ifc_class=ifc_class)
+    out_falseelems = "\n"
+    for e in falseelems:
+        out_falseelems += e + "\n"
+    # old, elemcount == 0 creates a failed test, but should not, no elements is not a fail
+    # if elemcount > 0 and falsecount == 0:
+    #     return # Test OK
+    # elif elemcount == 0:
+    #     assert False, (
+    #         message_no_elems.format(
+    #             ifc_class=ifc_class
+    #         )
+    #     )
+    if falsecount == 0:
+        return # test OK, test ist auch OK fuer elemcount == 0 !!!
     elif falsecount == elemcount:
         if parameter is None:
-            assert False, message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class)
-        else:
-            assert False, message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class, parameter=parameter)
-    elif falsecount > 0 and falsecount < elemcount:
-        if parameter is None:
-            assert False, message_some_falseelems.format(
-                falsecount=falsecount,
-                elemcount=elemcount,
-                ifc_class=ifc_class,
-                falseelems=falseelems,
+            assert False, (
+                message_all_falseelems.format(
+                    elemcount=elemcount,
+                    ifc_class=ifc_class
+                )
             )
         else:
-            assert False, message_some_falseelems.format(
-                falsecount=falsecount,
-                elemcount=elemcount,
-                ifc_class=ifc_class,
-                falseelems=falseelems,
-                parameter=parameter,
+            assert False, (
+                message_all_falseelems.format(
+                    elemcount=elemcount,
+                    ifc_class=ifc_class,
+                    parameter=parameter
+                )
+            )
+    elif falsecount > 0 and falsecount < elemcount:
+        if parameter is None:
+            assert False, (
+                message_some_falseelems.format(
+                    falsecount=falsecount,
+                    elemcount=elemcount,
+                    ifc_class=ifc_class,
+                    falseelems=out_falseelems,
+                )
+            )
+        else:
+            assert False, (
+                message_some_falseelems.format(
+                    falsecount=falsecount,
+                    elemcount=elemcount,
+                    ifc_class=ifc_class,
+                    falseelems=out_falseelems,
+                    parameter=parameter
+                )
             )
     else:
         assert False, _("Error in falsecount, something went wrong.")

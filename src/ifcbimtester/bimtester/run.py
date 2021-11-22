@@ -66,6 +66,7 @@ class TestRunner:
             ifcopenshell.register_schema(schema)
 
         IfcStore.file = ifc if ifc else ifcopenshell.open(ifc_path)
+        # print(IfcStore.file.by_type("IfcProject")[0])
 
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -97,7 +98,16 @@ class TestRunner:
         return report_json
 
     def test_feature(self, args):
-        tmpdir = tempfile.mkdtemp()
+        # tmpdir = tempfile.mkdtemp()
+        tmpdir = os.path.join(tempfile.gettempdir(), "bimtesterfc")
+        # delete tmpdir, if it exists
+        if os.path.isdir(tmpdir):
+            try:
+                shutil.rmtree(tmpdir)
+            except OSError as e:
+                print("Error deleteing directory: %s - %s." % (e.filename, e.strerror))
+                exit()
+            os.mkdir(tmpdir)
         features_path = os.path.join(tmpdir, "features")
         steps_path = os.path.join(features_path, "steps")
         report_json = os.path.join(tmpdir, "report.json")
@@ -108,8 +118,12 @@ class TestRunner:
                 shutil.copy(args["steps"], steps_path)
             elif os.path.isdir(args["steps"]):
                 copy_tree(args["steps"], steps_path)
-        behave_main(self.get_behave_args(args, features_path, report_json))
-        return report_json
+        args = self.get_behave_args(args, features_path, report_json)
+        import json
+        print("The behave args in run")
+        print(json.dumps(args, indent=4))
+        behave_main(args)
+        return report_json  # is returned even if not created, (args["console"] == False)
 
     def get_behave_args(self, args, features_path, report_json):
         behave_args = [features_path]

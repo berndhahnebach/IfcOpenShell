@@ -1,10 +1,12 @@
 import os
 
 from behave.model import Scenario
+
 from logfile import create_logfile
 from logfile import append_logfile
-from zoom_smart_view import append_zoom_smartview
-from zoom_smart_view import create_zoom_smartview
+from zoom_smart_view import create_zoom_set_of_smartviews
+from zoom_smart_view import add_smartview
+
 from bimtester.ifc import IfcStore
 from bimtester.lang import switch_locale
 
@@ -14,6 +16,9 @@ this_path = os.path.dirname(os.path.realpath(__file__))
 
 def before_all(context):
     userdata = context.config.userdata
+    context.ifcbasename = os.path.basename(
+        os.path.splitext(userdata["ifc"])[0]
+    )
 
     if context.config.lang:
         switch_locale(userdata.get("localedir"), context.config.lang)
@@ -27,28 +32,49 @@ def before_all(context):
     #     os.path.splitext(context.ifc_path)[0]
     # )
 
-    # context.outpath = os.path.join(this_path, "..")
+    context.outpath = os.path.join(this_path, "..")
 
-    # context.thelogfile = os.path.join(context.outpath, context.ifc_basename + ".log")
-    # create_logfile(
-    #     context.thelogfile,
-    #     context.ifc_basename,
-    # )
+    # set up log file
+    context.thelogfile = os.path.join(
+        context.outpath,
+        context.ifcbasename + ".log"
+    )
+    create_logfile(
+        context.thelogfile,
+        context.ifcbasename,
+    )
 
-    # # set up smart view file
-    # context.smview_file = os.path.join(context.outpath, context.ifc_basename + ".bcsv")
-    # create_zoom_smartview(
-    #     context.smview_file,
-    #     context.ifc_basename,
-    # )
+
+def before_feature(context, feature):
+    print("Start feature: {}".format(feature.name))
+
+    # set up smart view file
+    smartview_name = context.ifcbasename + "_" + feature.name
+    context.smview_file = os.path.join(
+        context.outpath,
+        smartview_name + ".bcsv"
+    )
+    # print("SmartView file: {}".format(context.smview_file))
+    create_zoom_set_of_smartviews(
+        context.smview_file,
+        smartview_name,
+    )
 
 
 def after_step(context, step):
-    pass
-    # TODO: refactor smart view support into a decoupled module
-    #if step.status == "failed":
-    #    # append log file
-    #    append_logfile(context, step)
-    #    # extend smart view
-    #    if hasattr(context, "falseguids"):
-    #        append_zoom_smartview(context.smview_file, step.name, context.falseguids)
+
+    if step.status == "failed":
+
+        # append log file
+        append_logfile(context, step)
+
+        # extend smart view
+        if hasattr(context, "falseguids"):
+            # print(context.falseguids)
+
+            add_smartview(
+                context.smview_file,
+                step.name,
+                context.falseguids
+            )
+    print("Finished step: {}".format(step.name))

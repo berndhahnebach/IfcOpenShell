@@ -9,6 +9,7 @@ from bimtester.lang import _
 def step_impl(context, schema):
     real_schema = IfcStore.file.schema
     assert real_schema == schema, _("We expected a schema of {} but instead got {}").format(schema, real_schema)
+    #has_ifcdata_specific_schema(context, schema)
 
 
 @step("The IFC file must be valid")
@@ -96,3 +97,61 @@ def get_subcontext(identifier, type, target_view):
 def step_impl(context, attribute_name, attribute_value):
     project = IfcStore.file.by_type("IfcProject")[0]
     assert getattr(project, attribute_name) == attribute_value
+
+
+@step('The IFC file must be exported by application full name "{fullname}"')
+def step_impl(context, fullname):
+
+    real_fullname = IfcStore.file.by_type("IfcApplication")[0].ApplicationFullName
+    assert  real_fullname == fullname , (
+        "The IFC file was not exported by application full name {} "
+        "instead it was exported by application full name {}"
+        .format(fullname, real_fullname)
+    )
+
+
+@step('The IFC file must be exported by application identifier "{identifier}"')
+def step_impl(context, identifier):
+
+    real_identifier = IfcStore.file.by_type("IfcApplication")[0].ApplicationIdentifier
+    assert  real_identifier == identifier , (
+        "The IFC file was not exported by application identifier {} "
+        "instead it was exported by identifier {}"
+        .format(identifier, real_identifier)
+    )
+
+
+@step('The IFC file must be exported by the application version "{version}"')
+def step_impl(context, version):
+
+    real_version = IfcStore.file.by_type("IfcApplication")[0].Version
+    assert  real_version == version , (
+        "The IFC file was not exported by application version {} "
+        "instead it was exported by version {}"
+        .format(version, real_version)
+    )
+
+
+@step('IFC data header must have a file description of "{header_file_description}" such as the new Allplan IFC exporter creates it')
+def step_impl(context, header_file_description):
+    
+    is_header_file_description = IfcStore.file.wrapped_data.header.file_description.description
+    assert  str(is_header_file_description) == header_file_description , (
+        "The file was not exported by the new ifc exporter in Allplan. File description header: {}"
+        .format(is_header_file_description)
+    )
+
+
+# ************************************************************************************************
+# helper
+"""
+def has_ifcdata_specific_schema(context, target_schema):
+    real_schema = IfcStore.file.schema
+    if real_schema != target_schema:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip("Falsches IFC-Schema, Abbruch.")
+    assert real_schema == target_schema, (
+        _("We expected a schema of {} but instead got {}")
+        .format(target_schema, real_schema)
+    )
+"""
