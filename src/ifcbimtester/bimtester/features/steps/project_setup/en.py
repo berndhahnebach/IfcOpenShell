@@ -1,21 +1,3 @@
-# BIMTester - OpenBIM Auditing Tool
-# Copyright (C) 2021 Dion Moult <dion@thinkmoult.com>
-#
-# This file is part of BIMTester.
-#
-# BIMTester is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# BIMTester is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
-
 from behave import step
 
 from bimtester import util
@@ -25,8 +7,22 @@ from bimtester.lang import _
 
 @step('IFC data must use the "{schema}" schema')
 def step_impl(context, schema):
-    real_schema = IfcStore.file.schema
-    assert real_schema == schema, _("We expected a schema of {} but instead got {}").format(schema, real_schema)
+    has_ifcdata_specific_schema(context, schema)
+
+
+@step('The ifc data uses exact "{unit_count}" units of unit type "{unit_type}"')
+def step_impl(context, unit_count, unit_type):
+    has_ifcdata_specific_unit_type_count(context, unit_count, unit_type)
+
+
+@step('A "{unit_type}" is of type "{ifc_type}" and is named "{unit_name}"')
+def step_impl(context, unit_type, ifc_type, unit_name):
+    has_a_unit_spcific_type_and_name(context, unit_type, ifc_type, unit_name)
+
+
+@step('A "{unit_type}" named "{unit_name}" uses the prefix "{unit_prefix}"')
+def step_impl(context, unit_type, unit_name, unit_prefix):
+    has_a_unit_type_and_name_a_spcific_prefix(context, unit_type, unit_name, unit_prefix)
 
 
 @step("The IFC file must be valid")
@@ -114,3 +110,55 @@ def get_subcontext(identifier, type, target_view):
 def step_impl(context, attribute_name, attribute_value):
     project = IfcStore.file.by_type("IfcProject")[0]
     assert getattr(project, attribute_name) == attribute_value
+
+
+# ************************************************************************************************
+# helper
+def has_ifcdata_specific_schema(context, target_schema):
+
+    actual_schema = IfcStore.file.schema
+
+    if actual_schema != target_schema:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip("Wrong IFC-Schema, abort.")
+
+    assert actual_schema == target_schema, (
+        _("We expected a schema of {} but instead got {}")
+        .format(target_schema, actual_schema)
+    )
+
+
+def has_ifcdata_specific_unit_type_count(context, target_unit_count, target_unit_type):
+
+    print("has_ifcdata_specific_unit_type_count")
+
+
+def has_a_unit_spcific_type_and_name(context, target_unit_type, target_ifc_type, target_unit_name):
+
+    print("has_a_unit_spcific_type_and_name")
+
+
+def has_a_unit_type_and_name_a_spcific_prefix(context, target_unit_type, target_unit_name, target_unit_prefix):
+
+    print("has_a_unit_type_and_name_a_spcific_prefix")
+
+
+
+# ************************************************************************************************
+# ************************************************************************************************
+# https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcsiunit.htm
+"""
+Am besten alles separat abfragen
+#12=IfcSIUnit(*,.LENGTHUNIT.,$,.METRE.)
+id --> 12
+type --> IfcSIUnit
+Dimensions --> None
+UnitType --> LENGTHUNIT
+Prefix --> None
+Name --> METRE
+
+Die IFC-Daten haben genau "1" Einheit(en) des Einheitentypes "LENGTHUNIT"
+Eine "LENGTHUNIT" hat den Typ "IfcSIUnit" und den Namen "METRE"
+Eine "LENGTHUNIT" mit dem Namen "METRE" hat den Prefix ""
+"""
+

@@ -1,21 +1,3 @@
-# BIMTester - OpenBIM Auditing Tool
-# Copyright (C) 2021 Dion Moult <dion@thinkmoult.com>
-#
-# This file is part of BIMTester.
-#
-# BIMTester is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# BIMTester is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
-
 import ifcopenshell.util.element as eleutils
 
 from behave import step
@@ -25,34 +7,61 @@ from bimtester.ifc import IfcStore
 from bimtester.lang import _
 
 
+@step('All "{ifc_class}" elements have one of these names "{valuerange}"')
+def step_impl(context, ifc_class, valuerange):
+    eleclass_has_name_valuerange_of(
+        context,
+        ifc_class,
+        valuerange   
+    )
+
+
 @step('There are exclusively "{ifc_classes}" elements only')
 def step_impl(context, ifc_classes):
-    only_eleclasses(context, ifc_classes)
+    only_eleclasses(
+        context,
+        ifc_classes
+    )
 
 
 @step('There are no "{ifc_class}" elements')
 def step_impl(context, ifc_class):
-    no_eleclass(context, ifc_class)
+    no_eleclass(
+        context,
+        ifc_class
+    )
 
 
 @step('There are no "{ifc_class}" elements because "{reason}"')
 def step_impl(context, ifc_class, reason):
-    no_eleclass(context, ifc_class)
+    no_eleclass(
+        context,
+        ifc_class
+    )
 
 
 @step('All "{ifc_class}" elements class attributes have a value')
 def step_impl(context, ifc_class):
-    eleclass_have_class_attributes_with_a_value(context, ifc_class)
+    eleclass_have_class_attributes_with_a_value(
+        context,
+        ifc_class
+    )
 
 
 @step('All "{ifc_class}" elements have a name given')
 def step_impl(context, ifc_class):
-    eleclass_has_name_with_a_value(context, ifc_class)
+    eleclass_has_name_with_a_value(
+        context,
+        ifc_class
+    )
 
 
 @step('All "{ifc_class}" elements have a description given')
 def step_impl(context, ifc_class):
-    eleclass_has_description_with_a_value(context, ifc_class)
+    eleclass_has_description_with_a_value(
+        context,
+        ifc_class
+    )
 
 
 @step('All "{ifc_class}" elements have a name matching the pattern "{pattern}"')
@@ -76,50 +85,90 @@ def step_impl(context, ifc_class, attribute_name, attribute_value):
 
 # ************************************************************************************************
 # helper
-def only_eleclasses(context, ifc_classes):
+def eleclass_has_name_valuerange_of(
+    context, target_ifc_class, target_valuerange_str
+):
+    from ast import literal_eval
+    target_valuerange_obj = literal_eval(target_valuerange_str)
 
     context.falseelems = []
     context.falseguids = []
 
-    # get the list of ifc_classes
-    target_ifc_classes = ifc_classes.replace(" ", "").split(",")
-    # ToDo test if they exist in ifc standard, should be possible with ifcos
+    elements = IfcStore.file.by_type(target_ifc_class)
+    for elem in elements:
+        if elem.Name not in target_valuerange_obj:
+            context.falseelems.append(str(elem))
+            context.falseguids.append(elem.GlobalId)
 
+    context.elemcount = len(elements)
+    context.falsecount = len(context.falseelems)
+    if context.falsecount > 0:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip(_("Error in eleclass_has_name_valuerange_of"))
+
+    # use target_ifc_class in method parameter but ifc_class in string parameter
+    util.assert_elements(
+        target_ifc_class,
+        context.elemcount,
+        context.falsecount,
+        context.falseelems,
+        message_all_falseelems=_("All {elemcount} {ifc_class} elements in the file elements do not have a name out of {parameter}"),
+        message_some_falseelems=_("{falsecount} of {elemcount} {ifc_class} do not have a name out of {parameter}: {falseelems}"),
+        parameter=target_valuerange_obj
+    )
+
+
+def only_eleclasses(
+    context, target_ifc_classes_str
+):
+
+    context.falseelems = []
+    context.falseguids = []
+
+    target_ifc_classes_list = util.extract_ifc_classes(context, target_ifc_classes_str)
     all_elements = IfcStore.file.by_type("IfcBuildingElement")
-    context.elemcount = len(all_elements)
 
     false_elements = []
     for elem in all_elements:
-        if elem.is_a() not in target_ifc_classes:
+        if elem.is_a() not in target_ifc_classes_list:
             context.falseelems.append(str(elem))
             context.falseguids.append(elem.GlobalId)
-    context.falsecount = len(context.falseelems)
 
-    # use ifc_classes in method parameter but ifc_class in string parameter
+    context.elemcount = len(all_elements)
+    context.falsecount = len(context.falseelems)
+    if context.falsecount > 0:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip(_("Error in only_eleclasses"))
+
+    # use target_ifc_classes_str in method parameter but ifc_class in string parameter
     # be careful somehow the opposite of most other tests is tested
     util.assert_elements(
-        ifc_classes,
+        target_ifc_classes_str,
         context.elemcount,
         context.falsecount,
         context.falseelems,
         message_all_falseelems=_("All {elemcount} elements in the file are not {ifc_class} elements."),
-        message_some_falseelems=_(
-            "{falsecount} of {elemcount} false_elements are not {ifc_class} elements: {falseelems}"
-        ),
+        message_some_falseelems=_("{falsecount} of {elemcount} false_elements are not {ifc_class} elements: {falseelems}"),
     )
 
 
-def no_eleclass(context, ifc_class):
+def no_eleclass(
+    context, ifc_class
+):
 
     context.falseelems = []
     context.falseguids = []
 
     elements = IfcStore.file.by_type(ifc_class)
-    context.elemcount = len(IfcStore.file.by_type("IfcBuildingElement"))
     for elem in elements:
         context.falseelems.append(str(elem))
         context.falseguids.append(elem.GlobalId)
+
+    context.elemcount = len(IfcStore.file.by_type("IfcBuildingElement"))
     context.falsecount = len(context.falseelems)
+    if context.falsecount > 0:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip(_("Error in no_eleclass"))
 
     # be careful somehow the opposite of most other tests is tested
     util.assert_elements(
@@ -132,10 +181,11 @@ def no_eleclass(context, ifc_class):
     )
 
 
-def eleclass_have_class_attributes_with_a_value(context, ifc_class):
+def eleclass_have_class_attributes_with_a_value(
+    context, ifc_class
+):
 
     from ifcopenshell.ifcopenshell_wrapper import schema_by_name
-
     # schema = schema_by_name("IFC2X3")
     schema = schema_by_name(IfcStore.file.schema)
     class_attributes = []
@@ -169,14 +219,10 @@ def eleclass_have_class_attributes_with_a_value(context, ifc_class):
         context.elemcount,
         context.falsecount,
         context.falseelems,
-        message_all_falseelems=_(
-            "For all {elemcount} {ifc_class} elements at least one of these class attributes {parameter} has no value."
-        ),
-        message_some_falseelems=_(
-            "For the following {falsecount} out of {elemcount} {ifc_class} elements at least one of these class attributes {parameter} has no value: {falseelems}"
-        ),
+        message_all_falseelems=_("For all {elemcount} {ifc_class} elements at least one of these class attributes {parameter} has no value."),
+        message_some_falseelems=_("For the following {falsecount} out of {elemcount} {ifc_class} elements at least one of these class attributes {parameter} has no value: {falseelems}"),
         message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-        parameter=failed_attribs,
+        parameter=failed_attribs
     )
 
 
@@ -188,26 +234,30 @@ def eleclass_has_name_with_a_value(context, ifc_class):
     elements = IfcStore.file.by_type(ifc_class)
     for elem in elements:
         # print(elem.Name)
-        if not elem.Name:
+        if not elem.Name or elem.Name == " ":  # leerer Name in Allplan erzeugt ein Leerzeichen, TODO siehe Material
             context.falseelems.append(str(elem))
             context.falseguids.append(elem.GlobalId)
 
     context.elemcount = len(elements)
     context.falsecount = len(context.falseelems)
+    if context.falsecount > 0:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip(_("Error in eleclass_has_name_with_a_value"))
+
     util.assert_elements(
         ifc_class,
         context.elemcount,
         context.falsecount,
         context.falseelems,
         message_all_falseelems=_("The name of all {elemcount} elements is not set."),
-        message_some_falseelems=_(
-            "The name of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"
-        ),
+        message_some_falseelems=_("The name of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"),
         message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
     )
 
 
-def eleclass_has_description_with_a_value(context, ifc_class):
+def eleclass_has_description_with_a_value(
+    context, ifc_class
+):
 
     context.falseelems = []
     context.falseguids = []
@@ -218,7 +268,7 @@ def eleclass_has_description_with_a_value(context, ifc_class):
         if not elem.Description:
             context.falseelems.append(str(elem))
             context.falseguids.append(elem.GlobalId)
-
+ 
     context.elemcount = len(elements)
     context.falsecount = len(context.falseelems)
     util.assert_elements(
@@ -227,8 +277,8 @@ def eleclass_has_description_with_a_value(context, ifc_class):
         context.falsecount,
         context.falseelems,
         message_all_falseelems=_("The description of all {elemcount} elements is not set."),
-        message_some_falseelems=_(
-            "The description of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"
-        ),
+        message_some_falseelems=_("The description of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"),
         message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
     )
+
+

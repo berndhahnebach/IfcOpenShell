@@ -1,25 +1,8 @@
-# BIMTester - OpenBIM Auditing Tool
-# Copyright (C) 2021 Dion Moult <dion@thinkmoult.com>
-#
-# This file is part of BIMTester.
-#
-# BIMTester is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# BIMTester is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
-
 import os
 import sys
 import json
 import shutil
+import time
 import logging
 import tempfile
 import ifcopenshell
@@ -37,18 +20,72 @@ from behave.__main__ import main as behave_main
 # TODO: refactor when this isn't super experimental
 from logging import StreamHandler
 
+class IDSHandler(StreamHandler):
+    def __init__(self):
+        StreamHandler.__init__(self)
+        self.results = {
+            "name": "Specification name",
+            "status": "passed",
+            "location": "filename.xml",
+            "elements": [
+                {
+                    "keyword": "Scenario",
+                    "name": "Checking IDS specifications",
+                    "status": "passed",
+                    "steps": []
+                }
+            ]
+        }
+
+    def emit(self, record):
+        msg = self.format(record)
+        # Obviously, not a final product
+        is_fail = "is compliant" not in msg
+        if is_fail:
+            self.results["status"] = "failed"
+            self.results["elements"][0]["status"] = "failed"
+        self.results["elements"][0]["steps"].append({
+            "keyword": "*",
+            "match": {},
+            "name": msg,
+            "result": {
+                "duration": 0.0,
+                "error_message": "Assertion Failed",
+                "status": "failed" if is_fail else "passed"
+            },
+            "step_type": "given"
+        })
 
 
 class TestRunner:
-    def __init__(self, ifc_path, schema_path=None, ifc=None):
-        IfcStore.path = ifc_path
+    def __init__(self, ifc_path, schema_path=None, ifc=None, ifcstore=None):
 
         # can't load the IFC file if the schema is not loaded before
         if schema_path:
             schema = ifcopenshell.express.parse(schema_path)
             ifcopenshell.register_schema(schema)
 
-        IfcStore.file = ifc if ifc else ifcopenshell.open(ifc_path)
+        if ifcstore is not None:
+            # use a instanz of IfcStore and add a init to class module
+            IfcStore.path = ifcstore.path
+            IfcStore.file = ifcstore.file
+            IfcStore.bookmarks = ifcstore.bookmarks
+            IfcStore.psets = ifcstore.psets
+            IfcStore.qsets = ifcstore.qsets
+        else:
+            print("Parse IFC im BIMTester run module in der TestRunner Klasse")
+            IfcStore.path = ifc_path
+            time_start = time.process_time()
+            IfcStore.file = ifc if ifc else ifcopenshell.open(ifc_path)
+            # print(IfcStore.file.by_type("IfcProject")[0])
+            from ifcopenshell.util.element import get_psets
+            for elem in IfcStore.file.by_type("IfcBuildingElement"):
+                IfcStore.psets[elem.id()] = get_psets(elem, psets_only=True)
+                IfcStore.qsets[elem.id()] = get_psets(elem, qtos_only=True)
+            print(
+                "IFC parsing and getting psets time: {} seconds."
+                .format(round((time.process_time() - time_start), 3))
+            )
 
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -59,22 +96,56 @@ class TestRunner:
         self.locale_path = os.path.join(self.base_path, "locale")
 
     def run(self, args):
+        if args["feature"][-4:].lower() == ".xml":
+            return self.test_ids(args)
         return self.test_feature(args)
 
-    def test_feature(self, args):
+    def test_ids(self, args):
+        # Local import whilst this is experimental
+        import ifcopenshell.ids
+
+        logger = logging.getLogger("IDS")
+        logging.basicConfig(level=logging.INFO, format="%(message)s")
+        ids_handler = IDSHandler()
+        logger.addHandler(ids_handler)
+        ids_file = ifcopenshell.ids.ids.open(args["feature"])
+        ids_file.validate(IfcStore.file, logger)
+
         tmpdir = tempfile.mkdtemp()
+        report_json = os.path.join(tmpdir, "report.json")
+        json.dump([ids_handler.results], open(report_json, "w"))
+        return report_json
+
+    def test_feature(self, args):
+        # tmpdir = tempfile.mkdtemp()
+        tmpdir = os.path.join(tempfile.gettempdir(), "bimtesterfc")
+        # delete tmpdir, if it exists
+        if os.path.isdir(tmpdir):
+            try:
+                shutil.rmtree(tmpdir)
+            except OSError as e:
+                print("Error deleteing directory: %s - %s." % (e.filename, e.strerror))
+                exit()
+            os.mkdir(tmpdir)
         features_path = os.path.join(tmpdir, "features")
         steps_path = os.path.join(features_path, "steps")
         report_json = os.path.join(tmpdir, "report.json")
         shutil.copytree(os.path.join(self.base_path, "features"), features_path)
-        shutil.copy(args["feature"], features_path)
+        if os.path.isfile(args["feature"]):
+            shutil.copy(args["feature"], features_path)
+        elif os.path.isdir(args["feature"]):
+            copy_tree(args["feature"], features_path)
         if args["steps"]:
             if os.path.isfile(args["steps"]):
                 shutil.copy(args["steps"], steps_path)
             elif os.path.isdir(args["steps"]):
                 copy_tree(args["steps"], steps_path)
-        behave_main(self.get_behave_args(args, features_path, report_json))
-        return report_json
+        args = self.get_behave_args(args, features_path, report_json)
+        import json
+        print("The behave args in run")
+        print(json.dumps(args, indent=4))
+        behave_main(args)
+        return report_json  # is returned even if not created, (args["console"] == False)
 
     def get_behave_args(self, args, features_path, report_json):
         behave_args = [features_path]
