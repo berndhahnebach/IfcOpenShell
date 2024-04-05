@@ -1105,7 +1105,6 @@ class IfcImporter:
         if len(vertex_list) == 0:
             return None
 
-
         mesh_name = tool.Loader.get_name_layout(representation.ContextOfItems.id(), representation.id())
         mesh = bpy.data.meshes.new(mesh_name)
         mesh.from_pydata(vertex_list, [], [])
