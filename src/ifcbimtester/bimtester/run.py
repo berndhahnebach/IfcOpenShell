@@ -20,9 +20,14 @@ import os
 import sys
 import json
 import shutil
+import logging
 import time
 import tempfile
 import ifcopenshell
+try:
+    import ifcopenshell.express
+except:
+    pass  # They are using an old version of IfcOpenShell. Gracefully degrade for now.
 import behave.formatter.pretty  # Needed for pyinstaller to package it
 from bimtester.ifc import IfcStore
 from distutils.dir_util import copy_tree

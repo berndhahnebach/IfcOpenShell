@@ -38,7 +38,7 @@ def run():
 
 class GuiWidgetBimTester(QtWidgets.QWidget):
     def __init__(self, args=None):
-        super(GuiWidgetBimTester, self).__init__()
+        super().__init__()
 
         if args is not None and args != {}:
             self.args = args
@@ -65,9 +65,7 @@ class GuiWidgetBimTester(QtWidgets.QWidget):
 
     def _setup_ui(self):
         package_path = os.path.dirname(os.path.realpath(__file__))
-        iconpath = os.path.join(
-            package_path, "resources", "icons", "bimtester.ico"
-        )
+        iconpath = os.path.join(package_path, "resources", "icons", "bimtester.ico")
 
         """
         # as svg
@@ -105,14 +103,8 @@ class GuiWidgetBimTester(QtWidgets.QWidget):
         _ifcfile_browse_btn.clicked.connect(self.select_ifcfile)
 
         # buttons
-        self.run_button = QtWidgets.QPushButton(
-            QtGui.QIcon.fromTheme("document-new"),
-            "Run"
-        )
-        self.close_button = QtWidgets.QPushButton(
-            QtGui.QIcon.fromTheme("window-close"),
-            "Close"
-        )
+        self.run_button = QtWidgets.QPushButton(QtGui.QIcon.fromTheme("document-new"), "Run")
+        self.close_button = QtWidgets.QPushButton(QtGui.QIcon.fromTheme("window-close"), "Close")
         self.run_button.clicked.connect(self.run_bimtester)
         self.close_button.clicked.connect(self.close_widget)
         _buttons = QtWidgets.QHBoxLayout()
@@ -139,9 +131,7 @@ class GuiWidgetBimTester(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def select_ifcfile(self):
-        ifcfile = QtWidgets.QFileDialog.getOpenFileName(
-            self, dir=self.get_ifcfile()
-        )[0]
+        ifcfile = QtWidgets.QFileDialog.getOpenFileName(self, dir=self.get_ifcfile())[0]
         self.set_ifcfile(ifcfile)
 
     def set_ifcfile(self, a_file):
@@ -153,9 +143,7 @@ class GuiWidgetBimTester(QtWidgets.QWidget):
         return " ".join(self.ifcfile_text.text().split())
 
     def select_featurefile(self):
-        featurefile = QtWidgets.QFileDialog.getOpenFileName(
-            self, dir=self.get_ifcfile()
-        )[0]
+        featurefile = QtWidgets.QFileDialog.getOpenFileName(self, dir=self.get_ifcfile())[0]
         self.set_featurefile(featurefile)
 
     def set_featurefile(self, a_file):
@@ -194,24 +182,15 @@ class GuiWidgetBimTester(QtWidgets.QWidget):
         if has_feature_file is True and has_ifc_file is True:
             print("Args passed from BIMtester GUI:")
             print(json.dumps(self.args, indent=4))
-            report_json = bimtester.run.TestRunner(
-                self.args["ifc"],
-                self.args["schema_file"]
-            ).run(self.args)
+            report_json = bimtester.run.TestRunner(self.args["ifc"], self.args["schema_file"]).run(self.args)
         else:
             print("Missing files, BIMTester can not run.")
             report_json = ""
 
         # create html report
         if os.path.isfile(report_json):
-            report_html = os.path.join(
-                os.path.dirname(os.path.realpath(report_json)),
-                "report.html"
-            )
-            bimtester.reports.ReportGenerator().generate(
-                report_json,
-                report_html
-            )
+            report_html = os.path.join(os.path.dirname(os.path.realpath(report_json)), "report.html")
+            bimtester.reports.ReportGenerator().generate(report_json, report_html)
             print("HTML report generated: {}".format(report_html))
         elif report_json == "":
             report_html = ""

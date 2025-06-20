@@ -117,7 +117,7 @@ def assert_elements(
     message_all_falseelems,
     message_some_falseelems,
     message_no_elems="",
-    parameter=None
+    parameter=None,
 ):
     # improve output of falselems
     out_falseelems = "\n\n"
@@ -138,42 +138,20 @@ def assert_elements(
     #     )
 
     if falsecount == 0:
-        return # test ok for elemcount == 0 and elemcount > 0
+        return  # test ok for elemcount == 0 and elemcount > 0
     elif falsecount == elemcount:
         if parameter is None:
-            assert False, (
-                message_all_falseelems.format(
-                    elemcount=elemcount,
-                    ifc_class=ifc_class
-                ) + "\n"
-            )
+            assert False, (message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class) + "\n")
         else:
             assert False, (
-                message_all_falseelems.format(
-                    elemcount=elemcount,
-                    ifc_class=ifc_class,
-                    parameter=parameter
-                ) + "\n"
-            )
+                message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class, parameter=parameter) + "\n")
     elif falsecount > 0 and falsecount < elemcount:
         if parameter is None:
             assert False, (
-                message_some_falseelems.format(
-                    falsecount=falsecount,
-                    elemcount=elemcount,
-                    ifc_class=ifc_class,
-                    falseelems=out_falseelems,
-                ) + "\n"
-            )
+                message_some_falseelems.format(falsecount=falsecount, elemcount=elemcount, ifc_class=ifc_class, falseelems=out_falseelems) + "\n")
         else:
             assert False, (
-                message_some_falseelems.format(
-                    falsecount=falsecount,
-                    elemcount=elemcount,
-                    ifc_class=ifc_class,
-                    falseelems=out_falseelems,
-                    parameter=parameter
-                ) + "\n"
+                message_some_falseelems.format(falsecount=falsecount, elemcount=elemcount, ifc_class=ifc_class, falseelems=out_falseelems, parameter=parameter) + "\n"
             )
     else:
         assert False, _("Error in falsecount calculation, something went wrong.") + "\n"

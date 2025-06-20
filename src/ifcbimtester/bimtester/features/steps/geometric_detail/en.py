@@ -217,5 +217,5 @@ def eleclass_not_has_geometric_representation_of_specific_class(
         message_all_falseelems=_("All {elemcount} {ifc_class} elements are a {parameter} representation."),
         message_some_falseelems=_("The following {falsecount} of {elemcount} {ifc_class} elements are a {parameter} representation: {falseelems}"),
         message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-        parameter=representation_class
+        parameter=representation_class,
     )
