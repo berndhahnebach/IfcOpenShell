@@ -150,7 +150,7 @@ def assert_elements(
                 falsecount=falsecount,
                 elemcount=elemcount,
                 ifc_class=ifc_class,
-                falseelems=out_falseelems
+                falseelems=out_falseelems,
             ) + "\n"
         else:
             assert False, message_some_falseelems.format(
@@ -158,7 +158,7 @@ def assert_elements(
                 elemcount=elemcount,
                 ifc_class=ifc_class,
                 falseelems=out_falseelems,
-                parameter=parameter
+                parameter=parameter,
             ) + "\n"
     else:
         assert False, _("Error in falsecount calculation, something went wrong.") + "\n"
