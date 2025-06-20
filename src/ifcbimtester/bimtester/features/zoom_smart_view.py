@@ -61,7 +61,7 @@ def add_smartview(sm_file, smartview_name, guids):
     smview_string += str(uuid.uuid4())  # create and add a smart view guid
     smview_string += "{}\n".format(each_smartview_string_before2)
     for guid in guids:
-        smview_string +=  "{}{}{}\n".format(rule_string_before, guid, rule_string_after)
+        smview_string += "{}{}{}\n".format(rule_string_before, guid, rule_string_after)
     smview_string += "{}\n".format(each_smartview_string_after)
 
     # insert smartview string into file
