@@ -43,23 +43,15 @@ def before_all(context):
     # for some Scenarios True would be better, may be dependend on the Scenario name as a workaround
 
     # context.ifc_path = userdata.get("ifc", "")
-    context.ifcfile_basename = os.path.basename(
-        os.path.splitext(userdata["ifc"])[0]
-    )
+    context.ifcfile_basename = os.path.basename(os.path.splitext(userdata["ifc"])[0])
     context.outpath = os.path.join(this_path, "..")
     context.create_log = True
     context.create_smartview = True
 
     if context.create_log is True:
         # set up log file
-        context.thelogfile = os.path.join(
-            context.outpath,
-            context.ifcfile_basename + ".log"
-        )
-        create_logfile(
-            context.thelogfile,
-            context.ifcfile_basename,
-        )
+        context.thelogfile = os.path.join(context.outpath, context.ifcfile_basename + ".log")
+        create_logfile(context.thelogfile, context.ifcfile_basename)
 
     # we have to use a dict to preserve the contents
     # https://stackoverflow.com/a/67606164
@@ -103,15 +95,9 @@ def before_feature(context, feature):
     # TODO: refactor zoom smart view support into a decoupled module
     if context.create_smartview is True:
         smartview_name = context.ifcfile_basename + "_" + feature.name
-        context.smview_file = os.path.join(
-            context.outpath,
-            smartview_name + ".bcsv"
-        )
+        context.smview_file = os.path.join(context.outpath, smartview_name + ".bcsv")
         # print("SmartView file: {}".format(context.smview_file))
-        create_zoom_set_of_smartviews(
-            context.smview_file,
-            smartview_name,
-        )
+        create_zoom_set_of_smartviews(context.smview_file, smartview_name)
 
     # print(context.skip_all_other_features)
     if context.skip_all_other_features["skip"] is True:
@@ -190,11 +176,7 @@ def after_step(context, step):
     ):
         # print("\nDBG: {}, {}\n".format(step.name, context.open_step_counter))
         # print(context.falseguids)
-        add_smartview(
-            context.smview_file,
-            step.name,
-            context.falseguids
-        )
+        add_smartview(context.smview_file, step.name, context.falseguids)
 
     # elecount
     if hasattr(context, "elemcount"):

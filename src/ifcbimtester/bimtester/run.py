@@ -24,6 +24,7 @@ import logging
 import time
 import tempfile
 import ifcopenshell
+
 try:
     import ifcopenshell.express
 except:
@@ -32,6 +33,10 @@ import behave.formatter.pretty  # Needed for pyinstaller to package it
 from bimtester.ifc import IfcStore
 from distutils.dir_util import copy_tree
 from behave.__main__ import main as behave_main
+
+
+# TODO: refactor when this isn't super experimental
+from logging import StreamHandler
 
 
 class TestRunner:
