@@ -51,7 +51,10 @@ def before_all(context):
     if context.create_log is True:
         # set up log file
         context.thelogfile = os.path.join(context.outpath, context.ifcfile_basename + ".log")
-        create_logfile(context.thelogfile, context.ifcfile_basename)
+        create_logfile(
+            context.thelogfile,
+            context.ifcfile_basename,
+        )
 
     # we have to use a dict to preserve the contents
     # https://stackoverflow.com/a/67606164
@@ -97,7 +100,10 @@ def before_feature(context, feature):
         smartview_name = context.ifcfile_basename + "_" + feature.name
         context.smview_file = os.path.join(context.outpath, smartview_name + ".bcsv")
         # print("SmartView file: {}".format(context.smview_file))
-        create_zoom_set_of_smartviews(context.smview_file, smartview_name)
+        create_zoom_set_of_smartviews(
+            context.smview_file,
+            smartview_name,
+        )
 
     # print(context.skip_all_other_features)
     if context.skip_all_other_features["skip"] is True:

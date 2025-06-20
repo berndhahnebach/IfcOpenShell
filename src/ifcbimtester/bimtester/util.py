@@ -141,25 +141,25 @@ def assert_elements(
         return  # test ok for elemcount == 0 and elemcount > 0
     elif falsecount == elemcount:
         if parameter is None:
-            assert False, (message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class) + "\n")
+            assert False, message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class) + "\n"
         else:
-            assert False, (message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class, parameter=parameter) + "\n")
+            assert False, message_all_falseelems.format(elemcount=elemcount, ifc_class=ifc_class, parameter=parameter) + "\n"
     elif falsecount > 0 and falsecount < elemcount:
         if parameter is None:
-            assert False, (message_some_falseelems.format(
+            assert False, message_some_falseelems.format(
                 falsecount=falsecount,
                 elemcount=elemcount,
                 ifc_class=ifc_class,
                 falseelems=out_falseelems
-            ) + "\n")
+            ) + "\n"
         else:
-            assert False, (message_some_falseelems.format(
+            assert False, message_some_falseelems.format(
                 falsecount=falsecount,
                 elemcount=elemcount,
                 ifc_class=ifc_class,
                 falseelems=out_falseelems,
                 parameter=parameter
-            ) + "\n")
+            ) + "\n"
     else:
         assert False, _("Error in falsecount calculation, something went wrong.") + "\n"
 
