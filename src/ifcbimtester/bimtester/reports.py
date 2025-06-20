@@ -1,21 +1,3 @@
-# BIMTester - OpenBIM Auditing Tool
-# Copyright (C) 2021 Dion Moult <dion@thinkmoult.com>
-#
-# This file is part of BIMTester.
-#
-# BIMTester is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# BIMTester is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
-
 import datetime
 import json
 import os
@@ -35,9 +17,21 @@ class ReportGenerator:
     def generate(self, report_json, output_file):
         print("# Generating HTML reports.")
 
+        self.report_dir = os.path.dirname(report_json)
+
         report = json.loads(open(report_json).read())
-        for feature in report:
-            self.generate_feature_report(feature, output_file)
+        # print(len(report))
+        if len(report) == 0:
+            print("Error: report has no fetures.")
+        elif len(report) == 1:
+            self.generate_feature_report(report[0], output_file)
+        else:
+            for feature in report:
+                multi_output_file =  os.path.join(
+                    os.path.dirname(output_file),
+                    os.path.basename(os.path.splitext(output_file)[0]) + "_" + feature["name"] + ".html"
+                )
+                self.generate_feature_report(feature, multi_output_file)
 
     def generate_feature_report(self, feature, output_file):
         # file_name = os.path.basename(feature["location"]).split(":")[0]
@@ -71,9 +65,8 @@ class ReportGenerator:
             data["pass_rate"] = 0
 
         # get language and switch locale
-        the_lang = self.get_feature_lang(feature.get("keyword", None))
+        the_lang = self.get_feature_lang(feature["keyword"])
         from bimtester.lang import switch_locale
-
         switch_locale(os.path.join(self.base_path, "locale"), the_lang)
         data["_lang"] = the_lang
 
@@ -128,10 +121,30 @@ class ReportGenerator:
             step["result"]["status"] = "undefined"
             step["result"]["duration"] = 0
             step["result"]["error_message"] = "This requirement has not yet been specified."
+        elif step["result"]["status"] == "skipped":
+            # workaround, has happened to me
+            step["result"]["error_message"] = "This requirement has been skipped due to a previous failing step."
+        # hack
+        # because I would not like to change the html template ATM
+        # I extend the time string with the ele count
+        ob_stream = open(os.path.join(self.report_dir, "elecount.yaml"), "r", encoding="utf-8")
+        import yaml
+        ele_data = yaml.safe_load(ob_stream)
+        ob_stream.close()
+        # print("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        # print(step["name"])  # name was changed
+        for astep in ele_data:
+            # print(astep[0])
+            if step["name"] == astep[0]:
+                ele_count = astep[1]
+                break
+        else:
+            ele_count = None
         data = {
             "name": name,
             "time_raw": step["result"]["duration"],
-            "time": round(step["result"]["duration"], 2),
+            "time": "{} eles, {}".format(ele_count, round(step["result"]["duration"], 2)),  # hack, see next line for org
+            #"time": round(step["result"]["duration"], 2),
             "is_success": step["result"]["status"] == "passed",
             "is_unspecified": step["result"]["status"] == "undefined",
             "is_skipped": step["result"]["status"] == "skipped",
@@ -156,6 +169,7 @@ class ReportGenerator:
 
     def get_feature_lang(self, feature_key):
         # I do not know any better ATM
+        print(feature_key)
         if feature_key == "Feature":
             return "en"
         elif feature_key == "Funktionalität":
@@ -166,4 +180,6 @@ class ReportGenerator:
             return "it"
         elif feature_key == "Functionaliteit":
             return "nl"
-        return "en"
+        else:
+            # standard English
+            return "en"
