@@ -38,11 +38,7 @@ def append_logfile(thecontext, step):
     logfile = open(thecontext.thelogfile, "a")
     logfile.write("\n\nStep '{}' failed\n".format(step.name))
     if hasattr(thecontext, "falseelems"):
-        logfile.write("{}\n".format(
-            json.dumps(thecontext.falseelems, indent=4)
-        ))
+        logfile.write("{}\n".format(json.dumps(thecontext.falseelems, indent=4)))
         if hasattr(thecontext, "falseprops"):
-            logfile.write("{}\n".format(
-                json.dumps(thecontext.falseprops, indent=4)
-            ))
+            logfile.write("{}\n".format(json.dumps(thecontext.falseprops, indent=4)))
     logfile.close()
