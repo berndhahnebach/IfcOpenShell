@@ -26,7 +26,7 @@ from bimtester.lang import _
 def step_impl(context, fullname):
 
     real_fullname = IfcStore.file.by_type("IfcApplication")[0].ApplicationFullName
-    assert  real_fullname == fullname , (
+    assert real_fullname == fullname, (
         "The IFC file was not exported by application full name {} "
         "instead it was exported by application full name {}"
         .format(fullname, real_fullname)

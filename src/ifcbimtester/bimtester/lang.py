@@ -20,6 +20,7 @@ import gettext
 
 translation = None
 
+
 def _(message):
     if translation:
         return translation(message)
