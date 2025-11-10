@@ -16,9 +16,23 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
 
-from behave import step
 
+def get_value_type(prop_value):
 
-@step('Alle "{ifc_class}" Bauteile haben das Attribut "{aproperty}" im PSet "{pset}"')
-def step_impl(context, ifc_class, aproperty, pset):
-    context.execute_steps(f'* All "{ifc_class}" elements have an "{aproperty}" property in the "{pset}" pset')
+    # workaround, use the Python datatyp
+    # TODO get the data typ from ifc file
+    # value type mapping
+
+    # print(prop_value)
+    # print(type(prop_value))
+
+    if isinstance(prop_value, str):
+        return "IfcText"
+    elif isinstance(prop_value, bool):
+        return "IfcBoolean"
+    elif isinstance(prop_value, float):
+        return "IfcReal"
+    elif isinstance(prop_value, int):
+        return "IfcInteger"
+    else:
+        return None

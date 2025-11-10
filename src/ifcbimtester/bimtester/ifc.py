@@ -17,7 +17,153 @@
 # along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import os
+import time
+
+import ifcopenshell
+import ifcopenshell.util.element as eleutils
+
+
+# ********************************************************************************************
 class IfcStore:
+
     path = ""
+    basename = ""
+    dirpath = ""
+    basedir = ""
     file = None
+    prjnr = ""
+
     bookmarks = {}
+
+    elements = {}
+    materials = {}
+    layernames = {}
+
+    new_props = {}  # ist it used somewhere, as class variable ???
+    psets = {}
+    qsets = {}
+
+    geom_freecad_shape = {}
+    geom_has_elements = {}
+    geom_has_errors = {}
+
+
+# obiges sind class attributes not instance attributes 
+# be carefull
+# class attributes are shared betweeen all instances of this class
+# thus defined somewhere they are available if the class is imported somewhere eles
+# defined in run but imported in a feature ... 
+# https://www.geeksforgeeks.org/python/python-attributes-class-vs-instance-explained/
+# oben ist super erlaeutert und super vergleichstabelle, unten ist auch gut
+# https://builtin.com/software-engineering-perspectives/python-attributes
+
+
+# da in diesem modul auch die klasse IfcStore definiert ist
+# kann in unteren methoden direkt auf die klassenvariablen zugegriffen werden
+# lesend und schreibend
+
+
+# ********************************************************************************************
+def init_ifcstore(ifc_file_path, elementfilter):
+
+    time_start = time.process_time()
+
+    if not os.path.isfile(ifc_file_path):
+        print("IFC-file {} not found.".format(ifc_file_path))
+        return False
+
+    print("Parse IFC-file and processing IfcStore on {}".format(ifc_file_path))
+
+    ifc_file_basename = os.path.basename(os.path.splitext(ifc_file_path)[0])
+    ifc_file_dir = os.path.dirname(ifc_file_path)
+    IfcStore.basename = ifc_file_basename
+    IfcStore.dirpath = ifc_file_dir
+    IfcStore.path = ifc_file_path
+    IfcStore.basedir = os.path.basename(ifc_file_dir)
+
+    IfcStore.file = ifcopenshell.open(str(ifc_file_path))  # just to be sure if a Path object was given
+    # IfcStore.elements = IfcStore.file.by_type(elementfilter)  # noqa: F401 # type: ignore
+    IfcStore.elements = list(ifcopenshell.util.selector.filter_elements(IfcStore.file, elementfilter))
+    for elem in IfcStore.elements:
+        IfcStore.psets[elem.id()] = eleutils.get_psets(elem, psets_only=True)
+        IfcStore.qsets[elem.id()] = eleutils.get_psets(elem, qtos_only=True)
+        IfcStore.materials[elem.id()] = eleutils.get_material(elem)
+        IfcStore.layernames[elem.id()] = get_layer_name(IfcStore.file, elem)
+
+    output_some_information(elementfilter)
+
+    print(
+        "--> {} seconds. Time to parse IFC-file and do data analysis\n"
+        .format(round((time.process_time() - time_start), 3))
+    )
+    # time.sleep(2)  # to be able ot read the parse time, not needed we write a log file
+
+    # for elem in IfcStore.elements:
+    #     print(elem)
+    # print(IfcStore.elements)
+    # print(type(IfcStore.elements))
+    # ToDO sort elements list bei ifc entity nummer, geht nicht einfach so mit sorted :-(
+
+    # exit()
+
+    return True
+
+
+# ********************************************************************************************
+def output_some_information(elementfilter):
+
+    print("The project: {}".format(IfcStore.file.by_type("IfcProject")[0]))
+    print("{} {}".format(len(IfcStore.elements), elementfilter))
+    print("{} IfcOpeningElements".format(len(IfcStore.file.by_type("IfcOpeningElement"))))
+    print("{} All Elements".format(len(IfcStore.elements)))
+    print("{} PSets".format(len(IfcStore.psets)))
+    print("{} QSets".format(len(IfcStore.qsets)))
+    print("{} Materials".format(len(IfcStore.materials)))
+    print("{} Layer names".format(len(IfcStore.layernames)))
+    print("")
+
+    return True
+
+
+# ************************************************************************************************
+def get_layer_name(ifcfile, elem):
+
+    # None: elem has no layer assigned
+    # "": layer name in IFC is None or ""
+    # "xyz": the layer name
+
+    #  print("")
+    # print(elem)
+    all_layer = eleutils.get_layers(ifcfile, elem)
+    # print(all_layer)
+
+    # workaround outside IfcOpenShell code for IFC4 and Allplan and IfcReinforcingBar
+    if all_layer == [] and ifcfile.schema == "IFC4" and elem.is_a() == "IfcReinforcingBar":
+        print("Allplan IFC4 reinforcement layerproblem. We get the layer ourself.")
+        # print(elem.Representation)
+        # print(elem.Representation.Representations[0])
+        # print(elem.Representation.Representations[0].Items[0])
+        # print(elem.Representation.Representations[0].Items[0].__dir__())
+        # print(elem.Representation.Representations[0].Items[0].LayerAssignment)
+        try:
+            found_layers = elem.Representation.Representations[0].Items[0].LayerAssignment
+            print(found_layers[0])
+            all_layer = [found_layers[0]]
+        except Exception:
+            print(elem)
+            print("Could not get layer of Allplan IFC4 reinforcement.")
+
+    if len(all_layer) > 0:
+        if all_layer[0].Name is None:
+            name = ""
+        else:
+            name = all_layer[0].Name
+    else:
+        name = None
+    # print(name)
+
+    return name
+
+# todo, implement a workaround for allplan reinforcement ifc4, make report, try latest ifcos
+# make a simple example and post on github bugreport

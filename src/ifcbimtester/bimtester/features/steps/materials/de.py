@@ -19,16 +19,19 @@
 from behave import step
 
 
-@step('Alle "{ifcos_query}" Bauteile haben eine Repräsentation (Geometrie) zugewiesen.')
+# see layer_and_style, features for layer are similar
+
+
+@step('Alle "{ifcos_query}" Bauteile haben ein zugeordnetes Material')
 def step_impl(context, ifcos_query):
-    context.execute_steps(f'* All "{ifcos_query}" elements must have a representation (geometry) assigned')
+    context.execute_steps(f'* All "{ifcos_query}" elements have one material assigned')
 
 
-@step('Alle "{ifcos_query}" Bauteile verwenden eine geometrische Repräsentation der Klasse "{representation_class}"')
-def step_impl(context, ifcos_query, representation_class):
-    context.execute_steps(f'* All "{ifcos_query}" elements have an "{representation_class}" representation')
+@step('Kein "{ifcos_query}" Bauteil hat ein Material mit dem Namen "{material_name}"')
+def step_impl(context, ifcos_query, material_name):
+    context.execute_steps(f'* No "{ifcos_query}" element has a material named "{material_name}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile verwenden explixit nicht eine geometrische Repräsentation der Klasse "{representation_class}"')
-def step_impl(context, ifcos_query, representation_class):
-    context.execute_steps(f'* All "{ifcos_query}" elements do not have an "{representation_class}" representation')
+@step('Alle "{ifcos_query}" Bauteile mit einem zugeordneten Material haben einen der folgenden Materialnamen "{valuerange}"')
+def step_impl(context, ifcos_query, valuerange):
+    context.execute_steps(f'* All "{ifcos_query}" elements which have a material assigned use one of these material names "{valuerange}"')

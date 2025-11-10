@@ -24,8 +24,31 @@ from bimtester.lang import _
 
 @step('IFC data must use the "{schema}" schema')
 def step_impl(context, schema):
-    real_schema = IfcStore.file.schema
-    assert real_schema == schema, _("We expected a schema of {} but instead got {}").format(schema, real_schema)
+    has_ifcdata_specific_schema(context, schema)
+
+
+@step('IFC data header must have a file description of "{header_file_description}"')
+def step_impl(context, header_file_description):
+    actual_header_file_description = str(IfcStore.file.wrapped_data.header.file_description.description)
+    assert  actual_header_file_description == header_file_description , (
+        "The data header has not the espected file description header: {}"
+        .format(actual_header_file_description)
+    )
+
+
+@step('The ifc data uses exact "{unit_count}" units of unit type "{unit_type}"')
+def step_impl(context, unit_count, unit_type):
+    has_ifcdata_specific_unit_type_count(context, unit_count, unit_type)
+
+
+@step('A "{unit_type}" is of type "{ifc_type}" and is named "{unit_name}"')
+def step_impl(context, unit_type, ifc_type, unit_name):
+    has_a_unit_spcific_type_and_name(context, unit_type, ifc_type, unit_name)
+
+
+@step('A "{unit_type}" named "{unit_name}" uses the prefix "{unit_prefix}"')
+def step_impl(context, unit_type, unit_name, unit_prefix):
+    has_a_unit_type_and_name_a_spcific_prefix(context, unit_type, unit_name, unit_prefix)
 
 
 @step("The IFC file must be valid")
@@ -113,3 +136,55 @@ def get_subcontext(identifier, type, target_view):
 def step_impl(context, attribute_name, attribute_value):
     project = IfcStore.file.by_type("IfcProject")[0]
     assert getattr(project, attribute_name) == attribute_value
+
+
+# ************************************************************************************************
+# helper
+def has_ifcdata_specific_schema(context, target_schema):
+
+    actual_schema = IfcStore.file.schema
+
+    if actual_schema != target_schema:
+        # -- SKIP: Remaining steps in current feature.
+        context.feature.skip("Wrong IFC-Schema, abort.")
+
+    assert actual_schema == target_schema, (
+        _("We expected a schema of {} but instead got {}")
+        .format(target_schema, actual_schema)
+    )
+
+
+def has_ifcdata_specific_unit_type_count(context, target_unit_count, target_unit_type):
+
+    print("has_ifcdata_specific_unit_type_count")
+
+
+def has_a_unit_spcific_type_and_name(context, target_unit_type, target_ifc_type, target_unit_name):
+
+    print("has_a_unit_spcific_type_and_name")
+
+
+def has_a_unit_type_and_name_a_spcific_prefix(context, target_unit_type, target_unit_name, target_unit_prefix):
+
+    print("has_a_unit_type_and_name_a_spcific_prefix")
+
+
+
+# ************************************************************************************************
+# ************************************************************************************************
+# https://standards.buildingsmart.org/IFC/RELEASE/IFC2x3/TC1/HTML/ifcmeasureresource/lexical/ifcsiunit.htm
+"""
+Am besten alles separat abfragen
+#12=IfcSIUnit(*,.LENGTHUNIT.,$,.METRE.)
+id --> 12
+type --> IfcSIUnit
+Dimensions --> None
+UnitType --> LENGTHUNIT
+Prefix --> None
+Name --> METRE
+
+Die IFC-Daten haben genau "1" Einheit(en) des Einheitentypes "LENGTHUNIT"
+Eine "LENGTHUNIT" hat den Typ "IfcSIUnit" und den Namen "METRE"
+Eine "LENGTHUNIT" mit dem Namen "METRE" hat den Prefix ""
+"""
+

@@ -23,16 +23,11 @@ use_step_matcher("parse")
 from bimtester.features.steps.application import en
 
 use_step_matcher("parse")
-from bimtester.features.steps.attributes_eleclasses import de, en
-
-use_step_matcher("parse")
-from bimtester.features.steps.attributes_psets import de, en
-
-use_step_matcher("parse")
-from bimtester.features.steps.attributes_qsets import en
-
-use_step_matcher("parse")
 from bimtester.features.steps.classification import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.eleclasses_attributes import de
+from bimtester.features.steps.eleclasses_attributes import en
 
 use_step_matcher("parse")
 from bimtester.features.steps.element_classes import en
@@ -44,13 +39,42 @@ use_step_matcher("parse")
 from bimtester.features.steps.geolocation import en
 
 use_step_matcher("parse")
-from bimtester.features.steps.geometric_detail import de, en
+from bimtester.features.steps.geometric_detail import de
+from bimtester.features.steps.geometric_detail import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.geometric_freecad import de
+from bimtester.features.steps.geometric_freecad import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.layer_and_style import de
+from bimtester.features.steps.layer_and_style import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.materials import de
+from bimtester.features.steps.materials import en
 
 use_step_matcher("parse")
 from bimtester.features.steps.model_federation import en
 
 use_step_matcher("parse")
-from bimtester.features.steps.project_setup import de, en, fr, it, nl
+from bimtester.features.steps.project_setup import de
+from bimtester.features.steps.project_setup import en
+from bimtester.features.steps.project_setup import fr
+from bimtester.features.steps.project_setup import it
+from bimtester.features.steps.project_setup import nl
+
+use_step_matcher("parse")
+from bimtester.features.steps.psets_complex_properties import de
+from bimtester.features.steps.psets_complex_properties import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.psets_standard_properties import de
+from bimtester.features.steps.psets_standard_properties import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.qsets_quantities import de
+from bimtester.features.steps.qsets_quantities import en
 
 use_step_matcher("parse")
 from bimtester.features.steps.spatial_structure import en

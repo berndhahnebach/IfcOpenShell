@@ -57,7 +57,7 @@ def add_smartview(sm_file, smartview_name, guids):
     # build the smartview string
     smview_string = "            <SMARTVIEW>\n"
     smview_string += "                <TITLE>GUID filter, {}</TITLE>\n".format(smartview_name)
-    smview_string += "{}\n".format(each_smartview_string_before1)
+    smview_string += "{}".format(each_smartview_string_before1)
     smview_string += str(uuid.uuid4())  # create and add a smart view guid
     smview_string += "{}\n".format(each_smartview_string_before2)
     for guid in guids:
@@ -152,7 +152,7 @@ rule_string_before = """                    <RULE>
 rule_string_after = """</VALUE>
                         </CONDITION>
                         <ACTION>
-                            <TYPE>SetColored</TYPE>
+                            <TYPE>AddSetColored</TYPE>
                             <R>255</R>
                             <G>10</G>
                             <B>10</B>
