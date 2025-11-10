@@ -233,7 +233,7 @@ def step_impl(context, guid, number):
     site = util.assert_guid(IfcStore.file, guid)
     util.assert_type(site, "IfcSite")
     ref = util.assert_attribute(site, "RefLongitude")
-    number = ifcopenshell.util.geolocation.dd2dms(number, use_us=(len(ref) == 4))
+    number = ifcopenshell.util.geolocation.dd2dms(number, use_ms=(len(ref) == 4))
     util.assert_attribute(site, "RefLongitude", number)
 
 
@@ -243,7 +243,7 @@ def step_impl(context, guid, number):
     site = util.assert_guid(IfcStore.file, guid)
     util.assert_type(site, "IfcSite")
     ref = util.assert_attribute(site, "RefLatitude")
-    number = ifcopenshell.util.geolocation.dd2dms(number, use_us=(len(ref) == 4))
+    number = ifcopenshell.util.geolocation.dd2dms(number, use_ms=(len(ref) == 4))
     util.assert_attribute(site, "RefLatitude", number)
 
 

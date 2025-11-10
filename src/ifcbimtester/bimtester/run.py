@@ -29,6 +29,9 @@ try:
     import ifcopenshell.express
 except:
     pass  # They are using an old version of IfcOpenShell. Gracefully degrade for now.
+import behave.formatter.pretty  # Needed for pyinstaller to package it
+from bimtester.ifc import IfcStore
+from bimtester.ifc import init_ifcstore
 from distutils.dir_util import copy_tree
 
 # TODO: refactor when this isn't super experimental
@@ -42,14 +45,16 @@ from bimtester.ifc import IfcStore
 
 class TestRunner:
     def __init__(self, ifc_path, schema_path=None, ifc=None):
-        IfcStore.path = ifc_path
 
         # can't load the IFC file if the schema is not loaded before
         if schema_path:
             schema = ifcopenshell.express.parse(schema_path)
             ifcopenshell.register_schema(schema)
 
-        IfcStore.file = ifc if ifc else ifcopenshell.open(ifc_path)
+        if IfcStore.file is None:
+            print("Main IfcStore class variable file was not set. Need to parse the Ifc here.")
+            status = init_ifcstore(ifc_path, "IfcBuildingElement")
+            print("IfcStore initialisation finished with: {}".format(status))
 
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -63,23 +68,41 @@ class TestRunner:
         return self.test_feature(args)
 
     def test_feature(self, args):
-        tmpdir = tempfile.mkdtemp()
+        # tmpdir = tempfile.mkdtemp()
+        tmpdir = os.path.join(tempfile.gettempdir(), "bimtesterfc")
+        # delete tmpdir, if it exists
+        if os.path.isdir(tmpdir):
+            try:
+                shutil.rmtree(tmpdir)
+            except OSError as e:
+                print("Error deleteing directory: %s - %s." % (e.filename, e.strerror))
+                exit()
+            os.mkdir(tmpdir)
         features_path = os.path.join(tmpdir, "features")
         steps_path = os.path.join(features_path, "steps")
         report_json = os.path.join(tmpdir, "report.json")
         shutil.copytree(os.path.join(self.base_path, "features"), features_path)
-        shutil.copy(args["feature"], features_path)
+        if os.path.isfile(args["feature"]):
+            shutil.copy(args["feature"], features_path)
+        elif os.path.isdir(args["feature"]):
+            copy_tree(args["feature"], features_path)
         if args["steps"]:
             if os.path.isfile(args["steps"]):
                 shutil.copy(args["steps"], steps_path)
             elif os.path.isdir(args["steps"]):
                 copy_tree(args["steps"], steps_path)
-        behave_main(self.get_behave_args(args, features_path, report_json))
-        return report_json
+        args = self.get_behave_args(args, features_path, report_json)
+
+        print(json.dumps(sys.path, indent=4))
+
+        print("The behave args in run")
+        print(json.dumps(args, indent=4))
+        behave_main(args)
+        return report_json  # is returned even if not created, (args["console"] == False)
 
     def get_behave_args(self, args, features_path, report_json):
         behave_args = [features_path]
-        behave_args.extend(["--define", "localedir={}".format(self.locale_path)])
+        #behave_args.extend(["--define", "localedir={}".format(self.locale_path)])
         if args["advanced_arguments"]:
             behave_args.extend(args["advanced_arguments"].split())
         if args["ifc"]:
