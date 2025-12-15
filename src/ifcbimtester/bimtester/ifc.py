@@ -30,6 +30,7 @@ class IfcStore:
     path = ""
     basename = ""
     dirpath = ""
+    basedir = ""
     file = None
     prjnr = ""
 
@@ -79,6 +80,7 @@ def init_ifcstore(ifc_file_path, elementtype="IfcBuildingElement"):
     IfcStore.basename = ifc_file_basename
     IfcStore.dirpath = ifc_file_dir
     IfcStore.path = ifc_file_path
+    IfcStore.basedir = os.path.basename(ifc_file_dir)
 
     IfcStore.file = ifcopenshell.open(str(ifc_file_path))  # just to be sure if a Path object was given
     IfcStore.elements = IfcStore.file.by_type(elementtype)  # noqa: F401 # type: ignore
