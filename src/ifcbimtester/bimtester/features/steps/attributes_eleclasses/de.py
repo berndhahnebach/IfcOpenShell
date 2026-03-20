@@ -44,9 +44,9 @@ def step_impl(context, ifcos_query, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements have one of these names "{valuerange}"')
 
 
-@step('Aus folgendem Grund gibt es keine "{ifcos_query}" Bauteile: {reason}')
-def step_impl(context, ifcos_query, reason):
-    context.execute_steps(f'* There are no "{ifcos_query}" elements because "{reason}"')
+# @step('Aus folgendem Grund gibt es keine "{ifcos_query}" Bauteile: {reason}')
+# def step_impl(context, ifcos_query, reason):
+#     context.execute_steps(f'* There are no "{ifcos_query}" elements because "{reason}"')
 
 
 @step('Alle "{ifcos_query}" Bauteilklassenattribute haben einen Wert')
