@@ -126,17 +126,6 @@ def step_impl(context, ifcos_query, pset, aproperty):
         pset
     )
 
-@step('Bis auf "{minus_ifcos_query}" Bauteile haben alle "{ifcos_query}" das Attribut.PSet "{pset}.{aproperty}" direkt angehängt')
-def step_impl(context, ifcos_query, minus_ifcos_query, pset, aproperty):
-    apm.eleclass_has_property_in_pset(
-        context,
-        ifcos_query,
-        aproperty,
-        pset,
-        minus_ifcos_query # different oder!
-    )
-
-
 @step('Alle "{ifcos_query}" Bauteile haben das Attribut.PSet "{pset}.{aproperty}" in einer Bauteilschicht angehängt')
 def step_impl(context, ifcos_query, pset, aproperty):
     apm.eleclass_has_property_in_layer_in_pset(

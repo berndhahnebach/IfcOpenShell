@@ -50,7 +50,7 @@ def step_impl(context, ifcos_query, pset, aproperty):
 
 @step('All "{ifcos_query}" elements have a "{pset}.{aproperty}" property')
 def step_impl(context, ifcos_query, pset, aproperty):
-    eleclass_minus_has_property_in_pset(
+    eleclass_has_property_in_pset(
         context,
         ifcos_query,
         pset,
@@ -60,7 +60,7 @@ def step_impl(context, ifcos_query, pset, aproperty):
 
 @step('All "{ifcos_query}" elements have not a "{pset}.{aproperty}" property')
 def step_impl(context, ifcos_query, pset, aproperty):
-    eleclass_minus_has_not_property_in_pset(
+    eleclass_has_not_property_in_pset(
         context,
         ifcos_query,
         pset,
@@ -176,65 +176,6 @@ def step_impl(context, pset, aproperty):
     )
 
 
-"""
-# elseclass properties, see other module ... 
-@step('All "{ifc_class}" elements with the property "{pset}.{aproperty}" should have the value of "{value}"')
-def step_impl(context, ifc_class, pset, aproperty, value):
-    eleclass_has_property_value_of(
-        context,
-        ifc_class,
-        pset,
-        aproperty,
-        value
-    )
-
-
-@step('All "{ifc_class}" elements with the property "{pset}.{aproperty}" should have the value type of "{valuetype}"')
-def step_impl(context, ifc_class, pset, aproperty, valuetype):
-    eleclass_has_property_valuetype_of(
-        context,
-        ifc_class,
-        pset,
-        aproperty,
-        valuetype
-    )
-"""
-
-
-# ------------------------------------------------------------------------
-# STEPS with Regular Expression Matcher ("re")
-# ------------------------------------------------------------------------
-use_step_matcher("re")
-
-
-@step("all (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property")
-def step_impl(context, ifc_class, property_path):
-    pset_name, property_name = property_path.split(".")
-    elements = IfcStore.file.by_type(ifc_class)
-    for element in elements:
-        if not IfcStore.get_property(element, pset_name, property_name):
-            assert False
-
-
-@step(
-    'all (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property value matching the pattern "(?P<pattern>.*)"'
-)
-def step_impl(context, ifc_class, property_path, pattern):
-    import re
-
-    pset_name, property_name = property_path.split(".")
-    elements = IfcStore.file.by_type(ifc_class)
-    for element in elements:
-        prop = IfcStore.get_property(element, pset_name, property_name)
-        if not prop:
-            assert False
-        # For now, we only check single values
-        if prop.is_a("IfcPropertySingleValue"):
-            if not (prop.NominalValue and re.search(pattern, prop.NominalValue.wrappedValue)):
-                assert False
-
-
-
 # ************************************************************************************************
 # helper
 
@@ -296,8 +237,8 @@ def eleclass_has_property_value_matching_pattern(
     )
 
 
-def eleclass_minus_has_property_in_pset(
-    context, target_ifcos_query, target_pset, target_property, minus_ifc_class=""
+def eleclass_has_property_in_pset(
+    context, target_ifcos_query, target_pset, target_property
 ):
 
     context.falseelems = []
@@ -306,17 +247,9 @@ def eleclass_minus_has_property_in_pset(
 
     # get the elements
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
-    elements = []
-    if minus_ifc_class == "":
-        elements = target_elements
-    else:
-        minus_elements = IfcStore.file.by_type(minus_ifc_class)
-        for elem in target_elements:
-            if elem not in minus_elements:
-                 elements.append(elem)
 
     # check if they have the attribute
-    for elem in elements:
+    for elem in target_elements:
         allpsets = IfcStore.psets[elem.id()]
         if target_pset not in allpsets:
             context.falseelems.append(util.get_false_elem_string(elem, allpsets))
@@ -329,7 +262,7 @@ def eleclass_minus_has_property_in_pset(
             context.falseguids.append(elem.GlobalId)
             context.falseprops[elem.id()] = str(allpsets)
 
-    context.elemcount = len(elements)
+    context.elemcount = len(target_elements)
     context.falsecount = len(context.falseelems)
     util.assert_elements(
         target_ifcos_query,
@@ -344,8 +277,8 @@ def eleclass_minus_has_property_in_pset(
     # improve output, the pset name is missing in the failing message, but it is in the step test name
 
 
-def eleclass_minus_has_not_property_in_pset(
-    context, target_ifcos_query, target_pset, target_property, minus_ifc_class=""
+def eleclass_has_not_property_in_pset(
+    context, target_ifcos_query, target_pset, target_property
 ):
     context.falseelems = []
     context.falseguids = []
@@ -353,17 +286,9 @@ def eleclass_minus_has_not_property_in_pset(
 
     # get the elements
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
-    elements = []
-    if minus_ifc_class == "":
-        elements = target_elements
-    else:
-        minus_elements = IfcStore.file.by_type(minus_ifc_class)
-        for elem in target_elements:
-            if elem not in minus_elements:
-                 elements.append(elem)
 
     # check if they have not the attribute
-    for elem in elements:
+    for elem in target_elements:
         allpsets = IfcStore.psets[elem.id()]
         if target_pset not in allpsets:
             continue
@@ -674,68 +599,6 @@ def eleclass_has_property_valuerange_of(
         parameter=target_py_valuerange
     )
     # improve output, the pset name is missing in the failing message, but it is in the step test name
-
-
-"""
-def eleclass_material_has_quantity_valuerange_of(
-    context, ifc_class, material, target_quantity, target_valuerange
-):
-
-    # waende backstein nur 12.5, 15, 17.5, 20 dick
-
-    # hier oder in eleclasses
-    # da letztenendes ein quantity geprueft wir hier, oder in nochmals separates module
-    # nur fuer quantities, das finde ich gut
-    # weil zum Beispiel bei quantities das set nicht explizit angegeben wird
-    # auch ist evtl. der quantity name nicht exakt gleich in gherkin und hier
-
-    from ast import literal_eval
-    target_py_valuerange = literal_eval(target_valuerange)
-
-    context.falseelems = []
-    context.falseguids = []
-    context.falseprops = {}
-
-    # evtl. Ausgabe Anzahl elem und Anzahl elem die das attribut ueberhaupt angehaengt haben
-    # Anzahl attrib macht keinen sinn wegen schichtattribute
-
-    elements = IfcStore.file.by_type(ifc_class)
-    for elem in elements:
-        elem_has_false_prop = False
-        for propvaltyp in get_prop_values_and_types(elem, target_pset, target_property):
-            if propvaltyp == []:
-                # elem does not have this property attached
-                continue
-            actual_value, actual_propertytype = propvaltyp
-            if actual_value not in target_py_valuerange:
-                # print("{} not in {}".format(actual_value, target_py_valuerange))
-                # ein elem koennte mehrmals ein False value type haben
-                # das attribut kann in Schichten vorkommen
-                # das attribut kann doppelt vorhanden sein (waere falsch, aber moeglich)
-                # daher kann ein elem mehrmals zu falseelems hinzugefuegt werden
-                elem_has_false_prop = True
-                context.falseelems.append(
-                    "{}, {}.{} = {} ({}):"
-                    .format(elem, target_pset, target_property, actual_value, actual_propertytype)
-                )
-        if elem_has_false_prop is True:
-            context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
-
-    context.elemcount = len(elements)
-    context.falsecount = len(context.falseguids)
-    util.assert_elements(
-        ifc_class,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("All {elemcount} {ifc_class} elements do not have a property value out of: {parameter}."),
-        message_some_falseelems=_("The following {falsecount} of {elemcount} {ifc_class} elements do not have the property value out of: {parameter}. False elements: {falseelems}"),
-        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-        parameter=target_py_valuerange
-    )
-    # improve output, the pset name is missing in the failing message, but it is in the step test name
-"""
 
 
 def eleclass_hasnot_chars_in_property_value(
@@ -1063,7 +926,35 @@ def eleclass_has_property_in_pset(
 # ------------------------------------------------------------------------
 # STEPS with Regular Expression Matcher ("re")
 # ------------------------------------------------------------------------
+# TODO ... Steps sind aehnlich, aber nicht identisch ??????
+
+
 use_step_matcher("re")
+
+
+@step("all (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property")
+def step_impl(context, ifc_class, property_path):
+    pset_name, property_name = property_path.split(".")
+    elements = IfcStore.file.by_type(ifc_class)
+    for element in elements:
+        if not IfcStore.get_property(element, pset_name, property_name):
+            assert False
+
+
+@step('all (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property value matching the pattern "(?P<pattern>.*)"')
+def step_impl(context, ifc_class, property_path, pattern):
+    import re
+
+    pset_name, property_name = property_path.split(".")
+    elements = IfcStore.file.by_type(ifc_class)
+    for element in elements:
+        prop = IfcStore.get_property(element, pset_name, property_name)
+        if not prop:
+            assert False
+        # For now, we only check single values
+        if prop.is_a("IfcPropertySingleValue"):
+            if not (prop.NominalValue and re.search(pattern, prop.NominalValue.wrappedValue)):
+                assert False
 
 
 @step(r"All (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property")
