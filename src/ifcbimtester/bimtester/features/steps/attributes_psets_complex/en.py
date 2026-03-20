@@ -492,3 +492,34 @@ def find_property_elemlayer(aelem, target_pset, target_property):
     actual_propertytype = helpertools.get_value_type(actual_value)
     # TODO and FIXME, get the data type from ifc data directly
     return (found, actual_value, actual_propertytype)
+
+
+def eleclass_matlayer_has_property_in_pset(
+    context, ifc_class, target_pset, target_property
+):
+
+    context.falseelems = []
+    context.falseguids = []
+    context.falseprops = {}
+
+    elements = IfcStore.file.by_type(ifc_class)
+    for elem in elements:
+        found, actual_value, actual_datatype = find_property_directly(elem, target_pset, target_property)
+        if found is True:
+            context.falseelems.append(str(elem))
+            context.falseguids.append(elem.GlobalId)
+            context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
+
+    context.elemcount = len(elements)
+    context.falsecount = len(context.falseelems)
+    util.assert_elements(
+        ifc_class,
+        context.elemcount,
+        context.falsecount,
+        context.falseelems,
+        message_all_falseelems=_("All {elemcount} {ifc_class} elements diretly have the property {parameter} in the pset."),
+        message_some_falseelems=_("The following {falsecount} of {elemcount} {ifc_class} elements diretly have the property {parameter} in the pset: {falseelems}"),
+        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
+        parameter=target_property
+    )
+    # improve output, the pset name is missing in the failing message, but it is in the step test name

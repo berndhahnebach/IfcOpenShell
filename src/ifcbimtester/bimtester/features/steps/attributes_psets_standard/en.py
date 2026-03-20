@@ -176,30 +176,6 @@ def step_impl(context, pset, aproperty):
     )
 
 
-# attributs dependend from material
-# do not use anymore, use ifcos filter instead
-@step('All "{ifcos_query}" elements with the material named "{material}" have a "{pset}.{property}" property')
-def step_impl(context, ifcos_query, material, pset, property):
-    eleclass_with_material_has_property_in_pset(
-        context,
-        ifcos_query,
-        material,
-        pset,
-        property
-    )
-
-
-@step('All "{ifcos_query}" elements which do not have a material named "{material}" have not a "{pset}.{property}" property')
-def step_impl(context, ifcos_query, material, pset, property):
-    eleclass_with_not_material_has_not_property_in_pset(
-        context,
-        ifcos_query,
-        material,
-        pset,
-        property
-    )
-
-
 """
 # elseclass properties, see other module ... 
 @step('All "{ifc_class}" elements with the property "{pset}.{aproperty}" should have the value of "{value}"')
@@ -965,144 +941,6 @@ def get_prop_values_and_types(aelem, target_pset, target_property):
     return props
 
 
-# ***************************************************************************************
-# ***************************************************************************************
-# ***************************************************************************************
-# evtl. ungueltig, nicht funktinierend, veraltet
-# ***************************************************************************************
-# ***************************************************************************************
-def eleclass_with_material_has_property_in_pset(
-        context,
-        target_ifcos_query,
-        target_material,
-        target_pset,
-        target_property
-    ):
-    context.falseelems = []
-    context.falseguids = []
-    context.falseprops = {}
-
-    # get the elements with target material
-    # print(target_material)
-    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
-    # print(len(target_elements))
-    elements = []
-    for elem in target_elements:
-        # wichtig, es hat pruefung stattgefunden, dass all elem direkt Materialname haben
-        if eleutils.get_material(elem).Name == target_material:
-            # print(eleutils.get_material(elem).Name)
-            elements.append(elem)
-    # print(len(elements))
-
-    # check if they have the attribute
-    for elem in elements:
-        allpsets = IfcStore.psets[elem.id()]
-        if target_pset not in allpsets:
-            context.falseelems.append(str(elem))
-            context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(allpsets)
-            continue
-        actual_pset = allpsets[target_pset]
-        if target_property not in actual_pset:
-            context.falseelems.append(str(elem))
-            context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(allpsets)
-
-    context.elemcount = len(elements)
-    context.falsecount = len(context.falseelems)
-    util.assert_elements(
-        ifc_ctarget_elementslass,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("All {elemcount} {parameter} {ifc_class} elements are missing the property in the PSet."),
-        message_some_falseelems=_("The following {falsecount} of {elemcount} {parameter} {ifc_class} elements are missing the property in the PSet: {falseelems}"),
-        message_no_elems=_("There are no {parameter} {ifc_class} elements in the IFC file."),
-        parameter=target_material
-    )
-    # improve output, the pset name is missing in the failing message, but it is in the step test name
-
-
-def eleclass_with_not_material_has_not_property_in_pset(
-        context,
-        target_ifcos_query,
-        target_material,
-        target_pset,
-        target_property
-    ):
-    context.falseelems = []
-    context.falseguids = []
-    context.falseprops = {}
-
-    # get the elements with target material
-    # print(target_material)
-    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
-    # print(len(target_elements))
-    elements = []
-    for elem in target_elements:
-        # wichtig, es hat pruefung stattgefunden, dass all elem direkt Materialname haben
-        if eleutils.get_material(elem).Name != target_material:
-            # print(eleutils.get_material(elem).Name)
-            elements.append(elem)
-    # print(len(elements))
-
-    # check if they have not the attribute
-    for elem in elements:
-        allpsets = IfcStore.psets[elem.id()]
-        if target_pset not in allpsets:
-            continue
-        actual_pset = allpsets[target_pset]
-        if target_property in actual_pset:
-            context.falseelems.append(str(elem))
-            context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(allpsets)
-
-    context.elemcount = len(elements)
-    context.falsecount = len(context.falseelems)
-    util.assert_elements(
-        target_ifcos_query,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("All {elemcount} non {parameter} {ifc_class} elements have the property in the PSet."),
-        message_some_falseelems=_("The following {falsecount} of {elemcount} non {parameter} {ifc_class} elements have the property in the PSet: {falseelems}"),
-        message_no_elems=_("There are no non {parameter} {ifc_class} elements in the IFC file."),
-        parameter=target_material
-    )
-    # improve output, the pset name is missing in the failing message, but it is in the step test name
-
-
-def eleclass_matlayer_has_property_in_pset(
-    context, ifc_class, target_pset, target_property
-):
-
-    context.falseelems = []
-    context.falseguids = []
-    context.falseprops = {}
-
-    elements = IfcStore.file.by_type(ifc_class)
-    for elem in elements:
-        found, actual_value, actual_datatype = find_property_directly(elem, target_pset, target_property)
-        if found is True:
-            context.falseelems.append(str(elem))
-            context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
-
-    context.elemcount = len(elements)
-    context.falsecount = len(context.falseelems)
-    util.assert_elements(
-        ifc_class,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("All {elemcount} {ifc_class} elements diretly have the property {parameter} in the pset."),
-        message_some_falseelems=_("The following {falsecount} of {elemcount} {ifc_class} elements diretly have the property {parameter} in the pset: {falseelems}"),
-        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-        parameter=target_property
-    )
-    # improve output, the pset name is missing in the failing message, but it is in the step test name
-
-
 def find_property_both(aelem, target_pset, target_property):
     """
     return True if the property is directly attached to the element
@@ -1149,51 +987,6 @@ def find_property_both(aelem, target_pset, target_property):
     #return props
 
 
-# ------------------------------------------------------------------------
-# STEPS with Regular Expression Matcher ("re")
-# ------------------------------------------------------------------------
-use_step_matcher("re")
-
-
-@step(r"All (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property")
-def step_impl(context, ifc_class, property_path):
-    import re
-    pset, aproperty = property_path.split(".")
-    eleclass_has_property_in_pset(
-        context,
-        ifc_class,
-        aproperty,
-        pset
-    )
-
-
-@step(r'All (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property value matching the pattern "(?P<pattern>.*)"')
-def step_impl(context, ifc_class, property_path, pattern):
-    import re
-
-    from ifcopenshell.util.element import get_psets
-
-    pset_name, property_name = property_path.split(".")
-    elements = IfcStore.file.by_type(ifc_class)
-    for element in elements:
-
-        psets = get_psets(element)
-
-        if  not pset_name in psets:
-            assert False
-        
-        pset = psets[pset_name]
-        if not property_name in pset:
-            assert False
-        
-        prop = pset[property_name]
-        # get_psets returns just strings
-
-        if not re.search(pattern, prop):
-            assert False
-
-
-# ************************************************************************************************
 def eleclass_has_propertycount_in_pset(
     context, target_ifcos_query, target_attribut_count, target_pset
 ):
@@ -1263,3 +1056,48 @@ def eleclass_has_property_in_pset(
         parameter=aproperty
     )
     # the pset name is missing in the failing message, but it is in the step test name
+
+
+# ************************************************************************************************
+# ************************************************************************************************
+# ------------------------------------------------------------------------
+# STEPS with Regular Expression Matcher ("re")
+# ------------------------------------------------------------------------
+use_step_matcher("re")
+
+
+@step(r"All (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property")
+def step_impl(context, ifc_class, property_path):
+    import re
+    pset, aproperty = property_path.split(".")
+    eleclass_has_property_in_pset(
+        context,
+        ifc_class,
+        aproperty,
+        pset
+    )
+
+
+@step(r'All (?P<ifc_class>.*) elements have an? (?P<property_path>.*\..*) property value matching the pattern "(?P<pattern>.*)"')
+def step_impl(context, ifc_class, property_path, pattern):
+    import re
+    from ifcopenshell.util.element import get_psets
+
+    pset_name, property_name = property_path.split(".")
+    elements = IfcStore.file.by_type(ifc_class)
+    for element in elements:
+
+        psets = get_psets(element)
+
+        if  not pset_name in psets:
+            assert False
+
+        pset = psets[pset_name]
+        if not property_name in pset:
+            assert False
+
+        prop = pset[property_name]
+        # get_psets returns just strings
+
+        if not re.search(pattern, prop):
+            assert False

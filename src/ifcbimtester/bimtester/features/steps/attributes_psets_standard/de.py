@@ -94,14 +94,3 @@ def step_impl(context, aproperty1, pset1, aproperty2, pset2):
 @step('Der Wert des Attributes "{pset}.{aproperty}" ist gleich dem Wert des Bauteilattributes Name')
 def step_impl(context, pset, aproperty):
     context.execute_steps(f'* The attribute value of "{pset}.{aproperty}" equals the class attribute Name')
-
-
-# attributvorhandensein in abhangigkeit von material
-@step('Alle "{ifcos_query}" Bauteile mit dem Material "{material}" haben das PSet.Attribut "{pset}.{property}" angehängt')
-def step_impl(context, ifcos_query, material, pset, property):
-    context.execute_steps(f'* All "{ifcos_query}" elements with the material named "{material}" have a "{pset}.{property}" property')
-
-
-@step('Alle "{ifcos_query}" Bauteile die NICHT das Material "{material}" haben, haben das Attribut.PSet "{pset}.{property}" NICHT angehängt')
-def step_impl(context, ifcos_query, material, pset, property):
-    context.execute_steps(f'* All "{ifcos_query}" elements which do not have a material named "{material}" have not a "{pset}.{property}" property')
