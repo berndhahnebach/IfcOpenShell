@@ -28,8 +28,12 @@ from bimtester.features.steps.attributes_eleclasses import de
 from bimtester.features.steps.attributes_eleclasses import en
 
 use_step_matcher("parse")
-from bimtester.features.steps.attributes_psets import de
-from bimtester.features.steps.attributes_psets import en
+from bimtester.features.steps.attributes_psets_complex import de
+from bimtester.features.steps.attributes_psets_complex import en
+
+use_step_matcher("parse")
+from bimtester.features.steps.attributes_psets_standard import de
+from bimtester.features.steps.attributes_psets_standard import en
 
 use_step_matcher("parse")
 from bimtester.features.steps.attributes_qsets import de
