@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
 
-import ifcopenshell.util.element as eleutils
 from behave import step
 from bimtester import util
 from bimtester.ifc import IfcStore

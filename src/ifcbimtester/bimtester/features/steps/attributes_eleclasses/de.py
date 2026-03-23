@@ -19,7 +19,6 @@
 from behave import step
 
 
-
 @step('Alle "{ifcos_query}" Objekte haben einen gültigen Wert für das Attribut Name zugewiesen')
 def step_impl(context, ifcos_query):
     context.execute_steps(f'* All "{ifcos_query}" objects do have a valid value assigned for the attribut Name')
