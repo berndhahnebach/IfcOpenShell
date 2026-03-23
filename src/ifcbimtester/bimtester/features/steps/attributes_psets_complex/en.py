@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BIMTester.  If not, see <http://www.gnu.org/licenses/>.
 
-import ifcopenshell.util.element as eleutils
-
 from behave import step
 from behave import use_step_matcher
 
@@ -116,7 +114,7 @@ def eleclass_has_no_complex_property(
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
     for elem in target_elements:
         if has_elem_complex_props(elem) is True:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()])))
             context.falseguids.append(elem.GlobalId)
             context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
 
@@ -155,12 +153,12 @@ def eleclass_without_complexlayerattributes_has_property(
 
     # check if they have the attribute
     for elem in elements:
-        psets = IfcStore.psets[elem.id()]
-        actual_pset = psets[target_pset]  # was wenn pset nicht vorhanden dann error
+        ele_allpsets = IfcStore.psets[elem.id()]
+        actual_pset = ele_allpsets[target_pset]  # was wenn pset nicht vorhanden dann error
         if target_property not in actual_pset:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, ele_allpsets)))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
+            context.falseprops[elem.id()] = str(ele_allpsets)
 
     context.elemcount = len(elements)
     context.falsecount = len(context.falseelems)
@@ -194,12 +192,12 @@ def eleclass_with_complexlayerattributes_has_property(
 
     # check if they have the attribute
     for elem in elements:
-        psets = IfcStore.psets[elem.id()]
-        actual_pset = psets[target_pset]  # was wenn pset nicht vorhanden dann error
+        ele_allpsets = IfcStore.psets[elem.id()]
+        actual_pset = ele_allpsets[target_pset]  # was wenn pset nicht vorhanden dann error
         if target_property not in actual_pset:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, ele_allpsets)))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
+            context.falseprops[elem.id()] = str(ele_allpsets)
 
     context.elemcount = len(elements)
     context.falsecount = len(context.falseelems)
@@ -232,23 +230,23 @@ def eleclass_with_complexlayerattributes_has_property_in_all_layer(
 
     # check if they have the property in each complex layer
     for elem in elements:
-        psets = IfcStore.psets[elem.id()]
-        actual_pset = psets[target_pset]  # was wenn pset nicht vorhanden dann error
+        ele_allpsets = IfcStore.psets[elem.id()]
+        actual_pset = ele_allpsets[target_pset]  # was wenn pset nicht vorhanden dann error
         complex_props = get_complex_props(actual_pset)
         # check if the target_pset has complex properties
         if len(complex_props) == 0:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, ele_allpsets)))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
+            context.falseprops[elem.id()] = str(ele_allpsets)
         #for complex_prop in complex_props
 
     """
         **********************!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         property should be in ALL complex layer
         if target_property in actual_pset:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, ele_allpsets)))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
+            context.falseprops[elem.id()] = str(ele_allpsets)
     """
 
     context.elemcount = len(elements)
@@ -271,9 +269,9 @@ def eleclass_with_complexlayerattributes_has_property_in_all_layer(
 # ***************************************************************************************
 def has_elem_complex_props(elem):
     # if one pset (no matter which) has complex props True will be returned
-    psets = IfcStore.psets[elem.id()]
-    for pset in psets:
-        for key in psets[pset].keys():
+    ele_allpsets = IfcStore.psets[elem.id()]
+    for pset in ele_allpsets:
+        for key in ele_allpsets[pset].keys():
             if is_complex_prop(key):
                 return True
     return False
@@ -317,7 +315,7 @@ def eleclass_has_property_directly_in_pset(
     for elem in elements:
         found, actual_value, actual_datatype = find_property_directly(elem, target_pset, target_property)
         if found is False:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()])))
             context.falseguids.append(elem.GlobalId)
             context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
 
@@ -348,7 +346,7 @@ def eleclass_has_not_property_directly_in_pset(
     for elem in elements:
         found, actual_value, actual_datatype = find_property_directly(elem, target_pset, target_property)
         if found is True:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()])))
             context.falseguids.append(elem.GlobalId)
             context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
 
@@ -381,7 +379,7 @@ def eleclass_has_property_in_layer_in_pset(
     for elem in elements:
         found, actual_value, actual_datatype = find_property_elemlayer(elem, target_pset, target_property)
         if found is False:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()])))
             context.falseguids.append(elem.GlobalId)
             context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
 
@@ -424,9 +422,9 @@ def find_property_both(aelem, target_pset, target_property):
     found = False  # actual_value could be None in ifc
     actual_value = None
     actual_propertytype = None
-    psets = eleutils.get_psets(aelem)
-    if target_pset in psets:
-        actual_pset = psets[target_pset]
+    ele_allpsets = IfcStore.psets[elem.id()]
+    if target_pset in ele_allpsets:
+        actual_pset = ele_allpsets[target_pset]
         if target_property in actual_pset:
             found = True  # do not use continue, pset could not exist
             actual_value = actual_pset[target_property]
@@ -456,9 +454,9 @@ def find_property_directly(aelem, target_pset, target_property):
     found = False
     actual_value = None
     actual_propertytype = None
-    psets = eleutils.get_psets(aelem)
-    if target_pset in psets:
-        actual_pset = psets[target_pset]
+    ele_allpsets = IfcStore.psets[elem.id()]
+    if target_pset in ele_allpsets:
+        actual_pset = ele_allpsets[target_pset]
         if target_property in actual_pset:
             found = True
             actual_value = actual_pset[target_property]
@@ -479,9 +477,9 @@ def find_property_elemlayer(aelem, target_pset, target_property):
     # Attribut muss in jeder Schicht vorkommen!
     actual_value = None
     found = False
-    psets = eleutils.get_psets(aelem)
-    if target_pset in psets:
-        actual_pset = psets[target_pset]
+    ele_allpsets = IfcStore.psets[elem.id()]
+    if target_pset in ele_allpsets:
+        actual_pset = ele_allpsets[target_pset]
         for key, val in actual_pset.items():
             if 'Object Layer Attributes' in key:
                 if 'properties' in val:
@@ -506,7 +504,7 @@ def eleclass_matlayer_has_property_in_pset(
     for elem in elements:
         found, actual_value, actual_datatype = find_property_directly(elem, target_pset, target_property)
         if found is True:
-            context.falseelems.append(str(elem))
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()])))
             context.falseguids.append(elem.GlobalId)
             context.falseprops[elem.id()] = str(IfcStore.psets[elem.id()])
 
