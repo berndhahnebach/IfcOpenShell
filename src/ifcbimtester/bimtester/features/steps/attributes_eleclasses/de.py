@@ -19,6 +19,12 @@
 from behave import step
 
 
+
+@step('Alle "{ifcos_query}" Objekte haben einen gültigen Wert für das Attribut "{ele_class_attribut}" zugewiesen')
+def step_impl(context, ifcos_query, ele_class_attribut):
+    context.execute_steps(f'* All "{ifcos_query}" objects do have a valid value assigned for the attribut "{ele_class_attribut}"')
+
+
 @step('Es sind nur "{ifcos_query}" Objekte innerhalb der "{ifc_entity_class}" Objekte vorhanden')
 def step_impl(context, ifcos_query, ifc_entity_class):
     context.execute_steps(f'* There are "{ifcos_query}" elements only inside all "{ifc_entity_class}" elements')

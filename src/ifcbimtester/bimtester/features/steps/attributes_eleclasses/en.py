@@ -23,6 +23,15 @@ from bimtester.ifc import IfcStore
 from bimtester.lang import _
 
 
+@step('All "{ifcos_query}" objects do have a valid value assigned for the attribut "{ele_class_attribut}"')
+def step_impl(context, ifcos_query, ele_class_attribut):
+    elems_attribut_has_valid_value(
+        context,
+        ifcos_query,
+        ele_class_attribut,
+    )
+
+
 @step('There are "{ifcos_query}" elements only inside all "{ifc_entity_class}" elements')
 def step_impl(context, ifcos_query, ifc_entity_class):
     entityclass_only(
@@ -390,4 +399,58 @@ def entityclass_only(
         message_all_falseelems=_("All {elemcount} {parameter} objects in the file are not {ifc_class} inside {parameter} objects."),
         message_some_falseelems=_("{falsecount} of {elemcount} {parameter} false_objects are not {ifc_class} inside {parameter} objects: {falseelems}"),
         parameter=target_ifc_entity_group
+    )
+
+
+def elems_attribut_has_valid_value(
+    context, target_ifcos_query, target_ele_class_attribut
+):
+
+    context.falseelems = []
+    context.falseguids = []
+
+    # None ist nicht gueltig
+    # ist ein Leerzeichen ein gueltiger Wert?
+    # ist ein Name mit einem Leerzeichen ein gueltiger Wert, " ", " Beton", oder "Beton "
+    # meines Erachtes sind das alles keine gueltigen Werte
+
+    # was wenn die class das attribut nicht definiert hat
+    # weiss grad kein explizites beispiel
+    # Beschreibung hat einen Rechtschreibfehler und heisst Beschreiung
+    # wenn das elem das attribut nicht hat ist test nicht erfuellt
+    # weil objekt hat kein gueltigen wert fur das attribut
+
+    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
+    # print(len(target_elements))
+    for elem in target_elements:
+        # print(elem.Name)
+        if not hasattr(elem, target_ele_class_attribut): 
+            context.falseelems.append(util.get_false_elem_string(elem))
+            context.falseguids.append(elem.GlobalId)
+        else:
+            target_attribut_value = getattr(elem, target_ele_class_attribut)
+            # print(target_attribut_value)
+            if (
+                target_attribut_value is None
+                or target_attribut_value.isspace() is True
+                or len(target_attribut_value) - len(target_attribut_value.strip()) > 0
+                # https://stackoverflow.com/a/13649013 all white space character like newline, not only spaces
+            ):
+                print("xxx{}xxx".format(target_attribut_value))
+                context.falseelems.append("{}, xxx{}xxx".format(util.get_false_elem_string(elem), target_attribut_value))
+                context.falseguids.append(elem.GlobalId)
+            else:
+                # valid value
+                pass
+
+    context.elemcount = len(target_elements)
+    context.falsecount = len(context.falseelems)
+    util.assert_elements(
+        target_ifcos_query,
+        context.elemcount,
+        context.falsecount,
+        context.falseelems,
+        message_all_falseelems=_("The description of all {elemcount} elements is not set."),
+        message_some_falseelems=_("The description of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"),
+        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
     )
