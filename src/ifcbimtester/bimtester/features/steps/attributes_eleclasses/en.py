@@ -56,7 +56,7 @@ def step_impl(context, ifcos_query, ifc_entity_class):
     )
 
 
-@step('In the model are precisely "{count_exact}" "{ifc_entity_class}" objects available')
+@step('There are precisely "{count_exact}" "{ifc_entity_class}" objects available')
 def step_impl(context, count_exact, ifc_entity_class):
     entityclass_count_exact(
         context,
@@ -65,7 +65,7 @@ def step_impl(context, count_exact, ifc_entity_class):
     )
 
 
-@step('In the model are between "{count_min}" and "{count_max}" "{ifc_entity_class}" objects available')
+@step('There are between "{count_min}" and "{count_max}" "{ifc_entity_class}" objects available')
 def step_impl(context, count_min, count_max, ifc_entity_class):
     entityclass_count_range(
         context,
@@ -99,21 +99,6 @@ def step_impl(context, ifcos_query):
         ifcos_query,
     )
 
-
-@step('All "{ifcos_query}" elements have a name given')
-def step_impl(context, ifcos_query):
-    eleclass_has_name_with_a_value(
-        context,
-        ifcos_query,
-    )
-
-
-@step('All "{ifcos_query}" elements have a description given')
-def step_impl(context, ifcos_query):
-    eleclass_has_description_with_a_value(
-        context,
-        ifcos_query,
-    )
 
 @step('All "{ifcos_query}" elements have a name matching the pattern "{pattern}"')
 def step_impl(context, ifcos_query, pattern):
@@ -192,107 +177,6 @@ def eleclass_has_name_valuerange_of(
         message_all_falseelems=_("All {elemcount} {ifc_class} elements in the file elements do not have a name out of {parameter}"),
         message_some_falseelems=_("{falsecount} of {elemcount} {ifc_class} do not have a name out of {parameter}: {falseelems}"),
         parameter=target_valuerange_obj
-    )
-
-
-def eleclass_have_class_attributes_with_a_value(
-    context, ifc_class
-):
-
-    from ifcopenshell.ifcopenshell_wrapper import schema_by_name
-    # schema = schema_by_name("IFC2X3")
-    schema = schema_by_name(IfcStore.file.schema)
-    class_attributes = []
-    for cl_attrib in schema.declaration_by_name(ifc_class).all_attributes():
-        class_attributes.append(cl_attrib.name())
-    # print(class_attributes)
-
-    context.falseelems = []
-    context.falseguids = []
-    context.falseprops = {}
-
-    elements = IfcStore.file.by_type(ifc_class)
-    failed_attribs = []
-    for elem in elements:
-        elem_failed = False
-        for cl_attrib in class_attributes:
-            attrib_value = getattr(elem, cl_attrib)
-            if not attrib_value:
-                elem_failed = True
-                failed_attribs.append(cl_attrib)
-                # print(attrib_value)
-        if elem_failed is True:
-            context.falseelems.append(util.get_false_elem_string(elem))
-            context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = failed_attribs
-
-    context.elemcount = len(elements)
-    context.falsecount = len(context.falseelems)
-    util.assert_elements(
-        ifc_class,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("For all {elemcount} {ifc_class} elements at least one of these class attributes {parameter} has no value."),
-        message_some_falseelems=_("For the following {falsecount} out of {elemcount} {ifc_class} elements at least one of these class attributes {parameter} has no value: {falseelems}"),
-        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-        parameter=failed_attribs
-    )
-
-
-def eleclass_has_name_with_a_value(context, target_ifcos_query):
-
-    context.falseelems = []
-    context.falseguids = []
-
-    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
-    for elem in target_elements:
-        # print(elem.Name)
-        if not elem.Name or elem.Name == " ":  # leerer Name in Allplan erzeugt ein Leerzeichen, TODO siehe Material
-            context.falseelems.append(util.get_false_elem_string(elem))
-            context.falseguids.append(elem.GlobalId)
-
-    context.elemcount = len(target_elements)
-    context.falsecount = len(context.falseelems)
-    if context.falsecount > 0:
-        # -- SKIP: Remaining steps in current feature.
-        context.feature.skip(_("Error in eleclass_has_name_with_a_value"))
-
-    util.assert_elements(
-        target_ifcos_query,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("The name of all {elemcount} elements is not set."),
-        message_some_falseelems=_("The name of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"),
-        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-    )
-
-
-def eleclass_has_description_with_a_value(
-    context, target_ifcos_query
-):
-
-    context.falseelems = []
-    context.falseguids = []
-
-    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
-    for elem in target_elements:
-        # print(elem.Description)
-        if not elem.Description:
-            context.falseelems.append(util.get_false_elem_string(elem))
-            context.falseguids.append(elem.GlobalId)
-
-    context.elemcount = len(target_elements)
-    context.falsecount = len(context.falseelems)
-    util.assert_elements(
-        target_ifcos_query,
-        context.elemcount,
-        context.falsecount,
-        context.falseelems,
-        message_all_falseelems=_("The description of all {elemcount} elements is not set."),
-        message_some_falseelems=_("The description of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"),
-        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
     )
 
 
@@ -428,7 +312,7 @@ def name_attribut_has_valid_value(
             context.falseelems.append("{}, {}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), elem.Name))
             context.falseguids.append(elem.GlobalId)
         elif (
-            elem.Name.isspace() is True
+            elem.Name.isspace() is True  # in Allplan erzeugt ein leerer Name ein Leerzeichen als attributwert, analog Material
             or len(elem.Name) - len(elem.Name.strip()) > 0
             # https://stackoverflow.com/a/13649013 all white space character like newline, not only spaces
         ):

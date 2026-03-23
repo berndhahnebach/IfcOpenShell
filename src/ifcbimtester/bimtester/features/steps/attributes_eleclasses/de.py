@@ -40,14 +40,14 @@ def step_impl(context, ifcos_query, ifc_entity_class):
     context.execute_steps(f'* There are no "{ifcos_query}" elements inside all "{ifc_entity_class}" elements')
 
 
-@step('Im Modell sind exakt "{count_exact}" "{ifc_entity_class}" Objekte vorhanden')
+@step('Es gibt exakt "{count_exact}" "{ifc_entity_class}" Objekte')
 def step_impl(context, count_exact, ifc_entity_class):
-    context.execute_steps(f'* In the model are precisely "{count_exact}" "{ifc_entity_class}" objects available')
+    context.execute_steps(f'* There are precisely "{count_exact}" "{ifc_entity_class}" objects available')
 
 
-@step('Im Modell sind zwischen "{count_min}" und "{count_max}" "{ifc_entity_class}" Objekte vorhanden')
+@step('Es gibt zwischen "{count_min}" und "{count_max}" "{ifc_entity_class}" Objekte')
 def step_impl(context, count_min, count_max, ifc_entity_class):
-    context.execute_steps(f'* In the model are between "{count_min}" and "{count_max}" "{ifc_entity_class}" objects available')
+    context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifc_entity_class}" objects available')
 
 
 @step('Alle "{ifcos_query}" Bauteile haben einen der folgenden Namen "{valuerange}"')
@@ -58,21 +58,6 @@ def step_impl(context, ifcos_query, valuerange):
 @step('Es sind gar keine "{ifcos_query}" Objekte vorhanden. Das hat foldenden Grund: {reason}')
 def step_impl(context, ifcos_query, reason):
     context.execute_steps(f'* There are no "{ifcos_query}" elements because "{reason}"')
-
-
-@step('Alle "{ifcos_query}" Bauteilklassenattribute haben einen Wert')
-def step_impl(context, ifcos_query):
-    context.execute_steps(f'* All "{ifcos_query}" elements class attributes have a value')
-
-
-@step('Alle "{ifcos_query}" Bauteile haben einen Namen')
-def step_impl(context, ifcos_query):
-    context.execute_steps(f'* All "{ifcos_query}" elements have a name given')
-
-
-@step('Bei allen "{ifcos_query}" Bauteilen ist die Beschreibung angegeben')
-def step_impl(context, ifcos_query):
-    context.execute_steps(f'* All "{ifcos_query}" elements have a description given')
 
 
 @step('Alle "{ifcos_query}" Bauteile haben einen Namen mit dem Muster "{pattern}"')
