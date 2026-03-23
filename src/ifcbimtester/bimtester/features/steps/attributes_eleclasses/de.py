@@ -40,14 +40,14 @@ def step_impl(context, ifcos_query, ifc_entity_class):
     context.execute_steps(f'* There are no "{ifcos_query}" elements inside all "{ifc_entity_class}" elements')
 
 
-@step('Es gibt exakt "{count_exact}" "{ifc_entity_class}" Objekte')
-def step_impl(context, count_exact, ifc_entity_class):
-    context.execute_steps(f'* There are precisely "{count_exact}" "{ifc_entity_class}" objects available')
+@step('Es gibt exakt "{count_exact}" "{ifcos_query}" Objekte')
+def step_impl(context, count_exact, ifcos_query):
+    context.execute_steps(f'* There are precisely "{count_exact}" "{ifcos_query}" objects available')
 
 
-@step('Es gibt zwischen "{count_min}" und "{count_max}" "{ifc_entity_class}" Objekte')
-def step_impl(context, count_min, count_max, ifc_entity_class):
-    context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifc_entity_class}" objects available')
+@step('Es gibt zwischen "{count_min}" und "{count_max}" "{ifcos_query}" Objekte')
+def step_impl(context, count_min, count_max, ifcos_query):
+    context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifcos_query}" objects available')
 
 
 @step('Alle "{ifcos_query}" Bauteile haben einen der folgenden Namen "{valuerange}"')
