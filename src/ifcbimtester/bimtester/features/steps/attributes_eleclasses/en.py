@@ -56,20 +56,20 @@ def step_impl(context, ifcos_query, ifc_entity_class):
     )
 
 
-@step('There are precisely "{count_exact}" "{ifc_entity_class}" objects available')
-def step_impl(context, count_exact, ifc_entity_class):
+@step('There are precisely "{count_exact}" "{ifcos_query}" objects')
+def step_impl(context, count_exact, ifcos_query):
     entityclass_count_exact(
         context,
-        ifc_entity_class,
+        ifcos_query,
         count_exact,
     )
 
 
-@step('There are between "{count_min}" and "{count_max}" "{ifc_entity_class}" objects available')
-def step_impl(context, count_min, count_max, ifc_entity_class):
+@step('There are between "{count_min}" and "{count_max}" "{ifcos_query}" objects')
+def step_impl(context, count_min, count_max, ifcos_query):
     entityclass_count_range(
         context,
-        ifc_entity_class,
+        ifcos_query,
         count_min,
         count_max,
     )
@@ -193,7 +193,7 @@ def entityclass_count_exact(
 
     if count_exact != len_target_elements:
         assert False, (_(
-            "In the model are precisely {} {} objects available, which ist not equal {}."
+            "There are precisely {} {} objects, which ist not equal {}."
             .format(len_target_elements, target_ifcos_query, count_exact)
         ))
 
@@ -215,7 +215,7 @@ def entityclass_count_range(
 
     if not (count_min <= len_target_elements <= count_max):
         assert False, (_(
-            "In the model are precisely {} {} objects available, which ist not between {} and {}."
+            "There are precisely {} {} objects, which ist not between {} and {}."
             .format(len_target_elements, target_ifcos_query, count_min, count_max)
         ))
 

@@ -40,24 +40,24 @@ def step_impl(context, ifcos_query, ifc_entity_class):
     context.execute_steps(f'* There are no "{ifcos_query}" elements inside all "{ifc_entity_class}" elements')
 
 
+@step('Es sind gar keine "{ifcos_query}" Objekte vorhanden. Das hat foldenden Grund: {reason}')
+def step_impl(context, ifcos_query, reason):
+    context.execute_steps(f'* There are no "{ifcos_query}" elements because "{reason}"')
+
+
 @step('Es gibt exakt "{count_exact}" "{ifcos_query}" Objekte')
 def step_impl(context, count_exact, ifcos_query):
-    context.execute_steps(f'* There are precisely "{count_exact}" "{ifcos_query}" objects available')
+    context.execute_steps(f'* There are precisely "{count_exact}" "{ifcos_query}" objects')
 
 
 @step('Es gibt zwischen "{count_min}" und "{count_max}" "{ifcos_query}" Objekte')
 def step_impl(context, count_min, count_max, ifcos_query):
-    context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifcos_query}" objects available')
+    context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifcos_query}" objects')
 
 
 @step('Alle "{ifcos_query}" Bauteile haben einen der folgenden Namen "{valuerange}"')
 def step_impl(context, ifcos_query, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements have one of these names "{valuerange}"')
-
-
-@step('Es sind gar keine "{ifcos_query}" Objekte vorhanden. Das hat foldenden Grund: {reason}')
-def step_impl(context, ifcos_query, reason):
-    context.execute_steps(f'* There are no "{ifcos_query}" elements because "{reason}"')
 
 
 @step('Alle "{ifcos_query}" Bauteile haben einen Namen mit dem Muster "{pattern}"')
