@@ -91,9 +91,18 @@ def step_impl(context, ifcos_query):
     )
 
 
-@step('All "{ifcos_query}" elements have a name matching the pattern "{pattern}"')
+@step('All "{ifcos_query}" elements have a Name matching the pattern "{pattern}"')
 def step_impl(context, ifcos_query, pattern):
     eleclass_has_name_matching_pattern(
+        context,
+        ifcos_query,
+        pattern,
+    )
+
+
+@step('All "{ifcos_query}" elements have a Description matching the pattern "{pattern}"')
+def step_impl(context, ifcos_query, pattern):
+    eleclass_has_description_matching_pattern(
         context,
         ifcos_query,
         pattern,
@@ -133,8 +142,36 @@ def eleclass_has_name_matching_pattern(
         context.elemcount,
         context.falsecount,
         context.falseelems,
-        message_all_falseelems=_("All {elemcount} {ifc_class} elements in the file elements do not have a name matching {parameter}"),
-        message_some_falseelems=_("{falsecount} of {elemcount} {ifc_class} do not have a name matching {parameter}: {falseelems}"),
+        message_all_falseelems=_("All {elemcount} {ifc_class} elements in the file elements do not have a Name matching {parameter}"),
+        message_some_falseelems=_("{falsecount} of {elemcount} {ifc_class} do not have a Name matching {parameter}: {falseelems}"),
+        parameter=target_pattern
+    )
+
+
+def eleclass_has_description_matching_pattern(
+    context, target_ifcos_query, target_pattern
+):
+    import re
+
+    context.falseelems = []
+    context.falseguids = []
+
+    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
+    for elem in target_elements:
+        if not re.search(target_pattern, elem.Description):
+            context.falseelems.append(util.get_false_elem_string(elem))
+            context.falseguids.append(elem.GlobalId)
+
+    context.elemcount = len(target_elements)
+    context.falsecount = len(context.falseelems)
+
+    util.assert_elements(
+        target_ifcos_query,
+        context.elemcount,
+        context.falsecount,
+        context.falseelems,
+        message_all_falseelems=_("All {elemcount} {ifc_class} elements in the file elements do not have a Description matching {parameter}"),
+        message_some_falseelems=_("{falsecount} of {elemcount} {ifc_class} do not have a Description matching {parameter}: {falseelems}"),
         parameter=target_pattern
     )
 

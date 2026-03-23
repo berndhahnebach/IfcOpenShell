@@ -54,11 +54,16 @@ def step_impl(context, count_min, count_max, ifcos_query):
     context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifcos_query}" objects')
 
 
-@step('Alle "{ifcos_query}" Bauteile haben einen der folgenden Namen "{valuerange}"')
+@step('Alle "{ifcos_query}" Objekte haben einen der folgenden Namen "{valuerange}"')
 def step_impl(context, ifcos_query, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements have one of these names "{valuerange}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile haben einen Namen mit dem Muster "{pattern}"')
+@step('Alle "{ifcos_query}" Objekte haben einen Namen mit dem Muster "{pattern}"')
 def step_impl(context, ifcos_query, pattern):
-    context.execute_steps(f'* All "{ifcos_query}" elements have a name matching the pattern "{pattern}"')
+    context.execute_steps(f'* All "{ifcos_query}" elements have a Name matching the pattern "{pattern}"')
+
+
+@step('Alle "{ifcos_query}" Objekte haben eine Description mit dem Muster "{pattern}"')
+def step_impl(context, ifcos_query, pattern):
+    context.execute_steps(f'* All "{ifcos_query}" elements have a Description matching the pattern "{pattern}"')
