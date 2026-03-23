@@ -168,19 +168,19 @@ def eleclass_has_property_in_common_pset(
 
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
     for elem in target_elements:
-        psets = IfcStore.psets[elem.id()]
+        actual_psets = IfcStore.psets[elem.id()]
         target_pset_name = util.get_common_pset_name(a_ifc_class)
-        if target_pset_name not in psets:
-            context.falseelems.append(str(elem))
+        if target_pset_name not in actual_psets:
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, actual_psets)))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
+            context.falseprops[elem.id()] = str(actual_psets)
             continue
-        actual_pset = psets[target_pset_name]
+        actual_pset = actual_psets[target_pset_name]
         if target_property not in actual_pset:
-            context.falseelems.append(util.get_false_elem_string(elem, psets))
+            context.falseelems.append(util.get_false_elem_string(elem, actual_psets))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
-        # print(psets[target_pset_name][target_property])
+            context.falseprops[elem.id()] = str(actual_psets)
+        # print(actual_psets[target_pset_name][target_property])
 
     context.elemcount = len(target_elements)
     context.falsecount = len(context.falseelems)
@@ -565,13 +565,13 @@ def propertyvalue1_equals_elementclassname(
 
     elements = IfcStore.file.by_type("IfcBuildingElement")
     for elem in elements:
-        psets = IfcStore.psets[elem.id()]
-        if (target_property in psets and target_property in psets[target_property]):
+        actual_psets = IfcStore.psets[elem.id()]
+        if (target_property in actual_psets and target_property in actual_psets[target_property]):
             # print(elem)
-            if not elem.Name == psets[target_property][target_property]:
-                context.falseelems.append(str(elem))
+            if not elem.Name == actual_psets[target_property][target_property]:
+                context.falseelems.append("{}".format(util.get_false_elem_string(elem, actual_psets)))
                 context.falseguids.append(elem.GlobalId)
-                context.falseprops[elem.id()] = str(psets)
+                context.falseprops[elem.id()] = str(actual_psets)
 
     out_falseelems = "\n"
     for e in context.falseelems:
@@ -713,7 +713,9 @@ def eleclass_has_propertycount_in_pset(
             # print(elem)
             # print(actual_attribut_count)
             if actual_attribut_count != target_attribut_count:
-                context.falseelems.append(str(elem))
+                context.falseelems.append("{}, {} properties".format(
+                        util.get_false_elem_string(elem, actual_psets), actual_attribut_count
+                ))
                 context.falseguids.append(elem.GlobalId)
                 context.falseprops[elem.id()] = str(actual_psets)
 
@@ -745,11 +747,11 @@ def eleclass_has_property_in_pset(
 
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
     for elem in target_elements:
-        psets = get_psets(elem)
-        if not (pset in psets and aproperty in psets[pset]):
-            context.falseelems.append(str(elem))
+        actual_psets = get_psets(elem)
+        if not (pset in actual_psets and aproperty in actual_psets[pset]):
+            context.falseelems.append("{}".format(util.get_false_elem_string(elem, actual_psets)))
             context.falseguids.append(elem.GlobalId)
-            context.falseprops[elem.id()] = str(psets)
+            context.falseprops[elem.id()] = str(actual_psets)
 
     context.elemcount = len(target_elements)
     context.falsecount = len(context.falseelems)
