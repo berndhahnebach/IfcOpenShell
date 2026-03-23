@@ -23,14 +23,20 @@ from bimtester.ifc import IfcStore
 from bimtester.lang import _
 
 
-@step('All "{ifcos_query}" objects do have a valid value assigned for the attribut "{ele_class_attribut}"')
-def step_impl(context, ifcos_query, ele_class_attribut):
-    elems_attribut_has_valid_value(
+@step('All "{ifcos_query}" objects do have a valid value assigned for the attribut Name')
+def step_impl(context, ifcos_query):
+    name_attribut_has_valid_value(
         context,
         ifcos_query,
-        ele_class_attribut,
     )
 
+
+@step('All "{ifcos_query}" objects do have a valid value assigned for the attribut Description')
+def step_impl(context, ifcos_query):
+    description_attribut_has_valid_value(
+        context,
+        ifcos_query,
+    )
 
 @step('There are "{ifcos_query}" elements only inside all "{ifc_entity_class}" elements')
 def step_impl(context, ifcos_query, ifc_entity_class):
@@ -402,8 +408,8 @@ def entityclass_only(
     )
 
 
-def elems_attribut_has_valid_value(
-    context, target_ifcos_query, target_ele_class_attribut
+def name_attribut_has_valid_value(
+    context, target_ifcos_query
 ):
 
     context.falseelems = []
@@ -414,34 +420,24 @@ def elems_attribut_has_valid_value(
     # ist ein Name mit einem Leerzeichen ein gueltiger Wert, " ", " Beton", oder "Beton "
     # meines Erachtes sind das alles keine gueltigen Werte
 
-    # was wenn die class das attribut nicht definiert hat
-    # weiss grad kein explizites beispiel
-    # Beschreibung hat einen Rechtschreibfehler und heisst Beschreiung
-    # wenn das elem das attribut nicht hat ist test nicht erfuellt
-    # weil objekt hat kein gueltigen wert fur das attribut
-
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
     # print(len(target_elements))
     for elem in target_elements:
         # print(elem.Name)
-        if not hasattr(elem, target_ele_class_attribut): 
-            context.falseelems.append(util.get_false_elem_string(elem))
+        if elem.Name is None:
+            context.falseelems.append("{}, {}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), elem.Name))
+            context.falseguids.append(elem.GlobalId)
+        elif (
+            elem.Name.isspace() is True
+            or len(elem.Name) - len(elem.Name.strip()) > 0
+            # https://stackoverflow.com/a/13649013 all white space character like newline, not only spaces
+        ):
+            # print("xxxxx{}xxxxx".format(elem.Name))
+            context.falseelems.append("{}, xxxxx{}xxxxx".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), elem.Name))
             context.falseguids.append(elem.GlobalId)
         else:
-            target_attribut_value = getattr(elem, target_ele_class_attribut)
-            # print(target_attribut_value)
-            if (
-                target_attribut_value is None
-                or target_attribut_value.isspace() is True
-                or len(target_attribut_value) - len(target_attribut_value.strip()) > 0
-                # https://stackoverflow.com/a/13649013 all white space character like newline, not only spaces
-            ):
-                print("xxx{}xxx".format(target_attribut_value))
-                context.falseelems.append("{}, xxx{}xxx".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), target_attribut_value))
-                context.falseguids.append(elem.GlobalId)
-            else:
-                # valid value
-                pass
+            # valid value
+            pass
 
     context.elemcount = len(target_elements)
     context.falsecount = len(context.falseelems)
@@ -450,7 +446,51 @@ def elems_attribut_has_valid_value(
         context.elemcount,
         context.falsecount,
         context.falseelems,
-        message_all_falseelems=_("The description of all {elemcount} elements is not set."),
-        message_some_falseelems=_("The description of {falsecount} out of {elemcount} {ifc_class} elements is not set: {falseelems}"),
+        message_all_falseelems=_("The attribut Name of all {elemcount} elements is not proper set."),
+        message_some_falseelems=_("The attribut Name of {falsecount} out of {elemcount} {ifc_class} elements is not proper set: {falseelems}"),
+        message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
+    )
+
+
+def description_attribut_has_valid_value(
+    context, target_ifcos_query
+):
+
+    context.falseelems = []
+    context.falseguids = []
+
+    # None ist nicht gueltig
+    # ist ein Leerzeichen ein gueltiger Wert?
+    # ist ein Name mit einem Leerzeichen ein gueltiger Wert, " ", " Beton", oder "Beton "
+    # meines Erachtes sind das alles keine gueltigen Werte
+
+    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
+    # print(len(target_elements))
+    for elem in target_elements:
+        # print(elem.Description)
+        if elem.Description is None:
+            context.falseelems.append("{}, {}".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), elem.Description))
+            context.falseguids.append(elem.GlobalId)
+        elif (
+            elem.Description.isspace() is True
+            or len(elem.Description) - len(elem.Description.strip()) > 0
+            # https://stackoverflow.com/a/13649013 all white space character like newline, not only spaces
+        ):
+            # print("xxxxx{}xxxxx".format(elem.Description))
+            context.falseelems.append("{}, xxxxx{}xxxxx".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), elem.Description))
+            context.falseguids.append(elem.GlobalId)
+        else:
+            # valid value
+            pass
+
+    context.elemcount = len(target_elements)
+    context.falsecount = len(context.falseelems)
+    util.assert_elements(
+        target_ifcos_query,
+        context.elemcount,
+        context.falsecount,
+        context.falseelems,
+        message_all_falseelems=_("The attribut Name of all {elemcount} elements is not proper set."),
+        message_some_falseelems=_("The attribut Name of {falsecount} out of {elemcount} {ifc_class} elements is not proper set: {falseelems}"),
         message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
     )
