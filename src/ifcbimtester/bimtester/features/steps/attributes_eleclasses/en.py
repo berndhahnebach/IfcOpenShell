@@ -437,7 +437,7 @@ def elems_attribut_has_valid_value(
                 # https://stackoverflow.com/a/13649013 all white space character like newline, not only spaces
             ):
                 print("xxx{}xxx".format(target_attribut_value))
-                context.falseelems.append("{}, xxx{}xxx".format(util.get_false_elem_string(elem), target_attribut_value))
+                context.falseelems.append("{}, xxx{}xxx".format(util.get_false_elem_string(elem, IfcStore.psets[elem.id()]), target_attribut_value))
                 context.falseguids.append(elem.GlobalId)
             else:
                 # valid value
