@@ -38,6 +38,7 @@ def step_impl(context, ifcos_query):
         ifcos_query,
     )
 
+
 @step('There are "{ifcos_query}" elements only inside all "{ifc_entity_class}" elements')
 def step_impl(context, ifcos_query, ifc_entity_class):
     entityclass_only(
@@ -75,15 +76,6 @@ def step_impl(context, count_min, count_max, ifcos_query):
     )
 
 
-@step('All "{ifcos_query}" elements have one of these names "{valuerange}"')
-def step_impl(context, ifcos_query, valuerange):
-    eleclass_has_name_valuerange_of(
-        context,
-        ifcos_query,
-        valuerange,
-    )
-
-
 @step('There are no "{ifcos_query}" elements because "{reason}"')
 def step_impl(context, ifcos_query, reason):
     no_eleclass(
@@ -109,13 +101,13 @@ def step_impl(context, ifcos_query, pattern):
     )
 
 
-@step('There is an "{ifc_class}" element with a "{attribute_name}" attribute with a value of "{attribute_value}"')
-def step_impl(context, ifc_class, attribute_name, attribute_value):
-    elements = IfcStore.file.by_type(ifc_class)
-    for element in elements:
-        if hasattr(element, attribute_name) and getattr(element, attribute_name) == attribute_value:
-            return
-    assert False
+@step('All "{ifcos_query}" elements have one of these names "{valuerange}"')
+def step_impl(context, ifcos_query, valuerange):
+    eleclass_has_name_valuerange_of(
+        context,
+        ifcos_query,
+        valuerange,
+    )
 
 
 # ************************************************************************************************
