@@ -53,7 +53,9 @@ class TestRunner:
 
         if IfcStore.file is None:
             print("Main IfcStore class variable file was not set. Need to parse the Ifc here.")
-            status = init_ifcstore(ifc_path, "IfcBuildingElement")
+            status = init_ifcstore(ifc_path, "IfcElement")
+            # what if we pruefen names and attributes of spatial elems
+            # than error, because the pset will not be found in IfcStore, because only psets of all IfcElement are in there
             print("IfcStore initialisation finished with: {}".format(status))
 
         try:

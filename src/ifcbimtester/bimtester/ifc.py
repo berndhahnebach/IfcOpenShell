@@ -65,7 +65,7 @@ class IfcStore:
 
 
 # ********************************************************************************************
-def init_ifcstore(ifc_file_path, elementtype="IfcBuildingElement"):
+def init_ifcstore(ifc_file_path, elementtype):
 
     time_start = time.process_time()
 
@@ -90,24 +90,25 @@ def init_ifcstore(ifc_file_path, elementtype="IfcBuildingElement"):
         IfcStore.materials[elem.id()] = eleutils.get_material(elem)
         IfcStore.layernames[elem.id()] = get_layer_name(IfcStore.file, elem)
 
-    output_some_information()
+    output_some_information(elementtype)
 
     print(
         "--> {} seconds. Time to parse IFC-file and do data analysis\n"
         .format(round((time.process_time() - time_start), 3))
     )
     # time.sleep(2)  # to be able ot read the parse time, not needed we write a log file
+    # exit()
 
     return True
 
 
 # ********************************************************************************************
-def output_some_information():
+def output_some_information(elementtype):
 
     print("The project: {}".format(IfcStore.file.by_type("IfcProject")[0]))
-    print("{} IfcBuildingElements".format(len(IfcStore.file.by_type("IfcBuildingElement"))))
+    print("{} {}".format(len(IfcStore.file.by_type(elementtype)), elementtype))
     print("{} IfcOpeningElements".format(len(IfcStore.file.by_type("IfcOpeningElement"))))
-    print("{} All Elements".format(len(IfcStore.file.by_type("IfcBuildingElement")) + len(IfcStore.file.by_type("IfcOpeningElement"))))
+    print("{} All Elements".format(len(IfcStore.file.by_type(elementtype))))
     print("{} PSets".format(len(IfcStore.psets)))
     print("{} QSets".format(len(IfcStore.qsets)))
     print("{} Materials".format(len(IfcStore.materials)))
@@ -124,7 +125,27 @@ def get_layer_name(ifcfile, elem):
     # "": layer name in IFC is None or ""
     # "xyz": the layer name
 
+    #  print("")
+    # print(elem)
     all_layer = eleutils.get_layers(ifcfile, elem)
+    # print(all_layer)
+
+    # workaround outside IfcOpenShell code for IFC4 and Allplan and IfcReinforcingBar
+    if all_layer == [] and ifcfile.schema == "IFC4" and elem.is_a() == "IfcReinforcingBar":
+        print("Allplan IFC4 reinforcement layerproblem. We get the layer ourself.")
+        # print(elem.Representation)
+        # print(elem.Representation.Representations[0])
+        # print(elem.Representation.Representations[0].Items[0])
+        # print(elem.Representation.Representations[0].Items[0].__dir__())
+        # print(elem.Representation.Representations[0].Items[0].LayerAssignment)
+        try:
+            found_layers = elem.Representation.Representations[0].Items[0].LayerAssignment
+            print(found_layers[0])
+            all_layer = [found_layers[0]]
+        except Exception:
+            print(elem)
+            print("Could not get layer of Allplan IFC4 reinforcement.")
+
     if len(all_layer) > 0:
         if all_layer[0].Name is None:
             name = ""
@@ -132,6 +153,9 @@ def get_layer_name(ifcfile, elem):
             name = all_layer[0].Name
     else:
         name = None
+    # print(name)
 
     return name
 
+# todo, implement a workaround for allplan reinforcement ifc4, make report, try latest ifcos
+# make a simple example and post on github bugreport
