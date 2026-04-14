@@ -81,23 +81,23 @@ def get_layer_old(elem):
     return the_layer
 
 
-def eleclass_has_layer_assigned(context, ifc_class):
+def eleclass_has_layer_assigned(context, target_ifcos_query):
 
     context.falseelems = []
     context.falseguids = []
 
-    elements = IfcStore.file.by_type(ifc_class)
-    for elem in elements:
+    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
+    for elem in target_elements:
         actual_layer_name = get_layer_name(elem)
         if actual_layer_name is None:
             # layer name None means there there is no Layer assigned
             context.falseelems.append(util.get_false_elem_string(elem))
             context.falseguids.append(elem.GlobalId)
 
-    context.elemcount = len(elements)
+    context.elemcount = len(target_elements)
     context.falsecount = len(context.falseelems)
     util.assert_elements(
-        ifc_class,
+        target_ifcos_query,
         context.elemcount,
         context.falsecount,
         context.falseelems,
@@ -106,13 +106,13 @@ def eleclass_has_layer_assigned(context, ifc_class):
     )
 
 
-def eleclass_has_not_layer_with_name(context, ifc_class, target_layer_name):
+def eleclass_has_not_layer_with_name(context, target_ifcos_query, target_layer_name):
 
     context.falseelems = []
     context.falseguids = []
 
-    elements = IfcStore.file.by_type(ifc_class)
-    for elem in elements:
+    target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
+    for elem in target_elements:
         actual_layer_name = get_layer_name(elem)
         # layer name None means there there is no Layer assigned
         # if there is no layer the test is ok
@@ -121,10 +121,10 @@ def eleclass_has_not_layer_with_name(context, ifc_class, target_layer_name):
             context.falseelems.append(util.get_false_elem_string(elem))
             context.falseguids.append(elem.GlobalId)
 
-    context.elemcount = len(elements)
+    context.elemcount = len(target_elements)
     context.falsecount = len(context.falseelems)
     util.assert_elements(
-        ifc_class,
+        target_ifcos_query,
         context.elemcount,
         context.falsecount,
         context.falseelems,
