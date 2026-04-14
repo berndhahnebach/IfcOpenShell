@@ -65,7 +65,7 @@ class IfcStore:
 
 
 # ********************************************************************************************
-def init_ifcstore(ifc_file_path, elementtype):
+def init_ifcstore(ifc_file_path, elementfilter):
 
     time_start = time.process_time()
 
@@ -83,32 +83,40 @@ def init_ifcstore(ifc_file_path, elementtype):
     IfcStore.basedir = os.path.basename(ifc_file_dir)
 
     IfcStore.file = ifcopenshell.open(str(ifc_file_path))  # just to be sure if a Path object was given
-    IfcStore.elements = IfcStore.file.by_type(elementtype)  # noqa: F401 # type: ignore
+    # IfcStore.elements = IfcStore.file.by_type(elementfilter)  # noqa: F401 # type: ignore
+    IfcStore.elements = list(ifcopenshell.util.selector.filter_elements(IfcStore.file, elementfilter))
     for elem in IfcStore.elements:
         IfcStore.psets[elem.id()] = eleutils.get_psets(elem, psets_only=True)
         IfcStore.qsets[elem.id()] = eleutils.get_psets(elem, qtos_only=True)
         IfcStore.materials[elem.id()] = eleutils.get_material(elem)
         IfcStore.layernames[elem.id()] = get_layer_name(IfcStore.file, elem)
 
-    output_some_information(elementtype)
+    output_some_information(elementfilter)
 
     print(
         "--> {} seconds. Time to parse IFC-file and do data analysis\n"
         .format(round((time.process_time() - time_start), 3))
     )
     # time.sleep(2)  # to be able ot read the parse time, not needed we write a log file
+
+    # for elem in IfcStore.elements:
+    #     print(elem)
+    # print(IfcStore.elements)
+    # print(type(IfcStore.elements))
+    # ToDO sort elements list bei ifc entity nummer, geht nicht einfach so mit sorted :-(
+
     # exit()
 
     return True
 
 
 # ********************************************************************************************
-def output_some_information(elementtype):
+def output_some_information(elementfilter):
 
     print("The project: {}".format(IfcStore.file.by_type("IfcProject")[0]))
-    print("{} {}".format(len(IfcStore.file.by_type(elementtype)), elementtype))
+    print("{} {}".format(len(IfcStore.elements), elementfilter))
     print("{} IfcOpeningElements".format(len(IfcStore.file.by_type("IfcOpeningElement"))))
-    print("{} All Elements".format(len(IfcStore.file.by_type(elementtype))))
+    print("{} All Elements".format(len(IfcStore.elements)))
     print("{} PSets".format(len(IfcStore.psets)))
     print("{} QSets".format(len(IfcStore.qsets)))
     print("{} Materials".format(len(IfcStore.materials)))
