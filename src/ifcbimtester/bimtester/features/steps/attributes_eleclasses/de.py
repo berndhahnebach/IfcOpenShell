@@ -19,15 +19,8 @@
 from behave import step
 
 
-@step('Alle "{ifcos_query}" Objekte haben einen gültigen Wert für das Attribut Name zugewiesen')
-def step_impl(context, ifcos_query):
-    context.execute_steps(f'* All "{ifcos_query}" objects do have a valid value assigned for the attribut Name')
-
-
-@step('Alle "{ifcos_query}" Objekte haben einen gültigen Wert für das Attribut Description zugewiesen')
-def step_impl(context, ifcos_query):
-    context.execute_steps(f'* All "{ifcos_query}" objects do have a valid value assigned for the attribut Description')
-
+# ************************************************************************************************
+# object class
 
 @step('Es sind nur "{ifcos_query}" Objekte innerhalb der "{ifc_entity_class}" Objekte vorhanden')
 def step_impl(context, ifcos_query, ifc_entity_class):
@@ -44,6 +37,9 @@ def step_impl(context, ifcos_query, reason):
     context.execute_steps(f'* There are no "{ifcos_query}" elements because "{reason}"')
 
 
+# ************************************************************************************************
+# object count
+
 @step('Es gibt exakt "{count_exact}" "{ifcos_query}" Objekte')
 def step_impl(context, count_exact, ifcos_query):
     context.execute_steps(f'* There are precisely "{count_exact}" "{ifcos_query}" objects')
@@ -52,6 +48,19 @@ def step_impl(context, count_exact, ifcos_query):
 @step('Es gibt zwischen "{count_min}" und "{count_max}" "{ifcos_query}" Objekte')
 def step_impl(context, count_min, count_max, ifcos_query):
     context.execute_steps(f'* There are between "{count_min}" and "{count_max}" "{ifcos_query}" objects')
+
+
+# ************************************************************************************************
+# Name, Description
+
+@step('Alle "{ifcos_query}" Objekte haben einen gültigen Wert für das Attribut Name zugewiesen')
+def step_impl(context, ifcos_query):
+    context.execute_steps(f'* All "{ifcos_query}" objects do have a valid value assigned for the attribut Name')
+
+
+@step('Alle "{ifcos_query}" Objekte haben einen gültigen Wert für das Attribut Description zugewiesen')
+def step_impl(context, ifcos_query):
+    context.execute_steps(f'* All "{ifcos_query}" objects do have a valid value assigned for the attribut Description')
 
 
 @step('Alle "{ifcos_query}" Objekte haben einen der folgenden Namen "{valuerange}"')
