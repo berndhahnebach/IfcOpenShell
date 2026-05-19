@@ -63,22 +63,3 @@ def step_impl(context, header_file_description):
         "The data header has not the espected file description header: {}"
         .format(actual_header_file_description)
     )
-
-
-@step('The ifc file has been exported with the new Allplan ifc exporter. This means the ifc file data header description is as follows: "{target_header_file_description}"')
-def step_impl(context, target_header_file_description):
-
-    actual_header_file_description = str(IfcStore.file.wrapped_data.header.file_description.description)
-    # print(len(actual_header_file_description))
-    # print(actual_header_file_description)
-    # print(len(target_header_file_description))
-    # print(target_header_file_description)
-
-    if actual_header_file_description != target_header_file_description:
-        # -- SKIP: Remaining steps in current feature.
-        context.feature.skip("Deprecated Allplan ifc exporter, abort.")
-
-    assert actual_header_file_description == target_header_file_description, (
-        _("The ifc data has not been exported with the updatodate Allplan ifc exporter. Ifc data header description: {} != {}: target ifc data header description")
-        .format(actual_header_file_description, target_header_file_description)
-    )
