@@ -52,14 +52,3 @@ def step_impl(context, version):
         "instead it was exported by version {}"
         .format(version, real_version)
     )
-
-
-@step('IFC data header must have a file description of "{header_file_description}"')
-
-def step_impl(context, header_file_description):
-
-    actual_header_file_description = str(IfcStore.file.wrapped_data.header.file_description.description)
-    assert  actual_header_file_description == header_file_description , (
-        "The data header has not the espected file description header: {}"
-        .format(actual_header_file_description)
-    )
