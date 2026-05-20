@@ -106,6 +106,6 @@ def step_impl(context, aproperty1, pset1, aproperty2, pset2):
     # "if both are given" im engl. text ist falsch, das sollte in extra tests vorher geprueft werden
 
 
-@step('Der Wert des Attributes "{pset}.{aproperty}" ist gleich dem Wert des Bauteilattributes Name')
+@step('Der Wert des Property "{pset}.{aproperty}" ist gleich dem Wert des Bauteilattributes Name')
 def step_impl(context, pset, aproperty):
     context.execute_steps(f'* The property value of "{pset}.{aproperty}" equals the class attribute Name')
