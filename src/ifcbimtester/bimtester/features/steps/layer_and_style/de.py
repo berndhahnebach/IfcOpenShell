@@ -39,7 +39,9 @@ def step_impl(context, ifcos_query, valuerange):
 
 
 # not in Materials, kann durch obiges ersetzt werden, der valuerange ist dann nur ein layer_name
-# ToDo, replace with above and delete this
+# ToDo1, replace with above and delete this
+# or
+# ToDo2, add this to materials, as it is much more robust and much more simpler to edit 
 @step('Alle "{ifcos_query}" Bauteile mit einem zugeordneten Layer haben den Layernamen "{layer_name}"')
 def step_impl(context, ifcos_query, layer_name):
     context.execute_steps(f'* All "{ifcos_query}" elements that have a layer assigned use the layer name "{layer_name}"')
