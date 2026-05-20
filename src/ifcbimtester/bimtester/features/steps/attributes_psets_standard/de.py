@@ -20,7 +20,7 @@ from behave import step
 
 
 # ToDo, switch from Attribut to Property
-# link good german artikle
+# link good german article
 
 
 # ************************************************************************************************
@@ -51,7 +51,7 @@ def step_impl(context, ifcos_queryes, aproperty):
 # datentyp der Propertywerte
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben den Propertytyp "{propertytyp}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben den Propertytyp "{propertytyp}"')
 def step_impl(context, ifcos_query, pset, aproperty, propertytyp):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" are of type "{propertytyp}"')
 
@@ -60,23 +60,23 @@ def step_impl(context, ifcos_query, pset, aproperty, propertytyp):
 # Propertywerte
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben den Propertywert "{propertyvalue}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben den Propertywert "{propertyvalue}"')
 def step_impl(context, ifcos_query, pset, aproperty, propertyvalue):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a value of "{propertyvalue}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben nicht den Propertywert "{propertyvalue}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben nicht den Propertywert "{propertyvalue}"')
 def step_impl(context, ifcos_query, pset, aproperty, propertyvalue):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" do not have a value of "{propertyvalue}"')
 
 
 # depricated (TODO: replace in all feature files)
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben einen Propertywert aus dem Bereich von "{valuerange}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben einen Propertywert aus dem Bereich von "{valuerange}"')
 def step_impl(context, ifcos_query, pset, aproperty, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a value range of "{valuerange}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben a einen Propertywert mit dem Muster "{pattern}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben a einen Propertywert mit dem Muster "{pattern}"')
 def step_impl(context, ifcos_query, pset, aproperty, pattern):
     context.execute_steps(f'* All "{ifcos_query}" elements  with a "{pset}.{aproperty}" have a value matching the pattern "{pattern}"')
 
@@ -91,7 +91,7 @@ def step_impl(context, ifcos_query, pset, aproperty, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a property value out of value range. All items of value range have been used "{valuerange}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben die Zeichenfolge "{some_chars}" nicht im Propertywert"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben die Zeichenfolge "{some_chars}" nicht im Propertywert"')
 def step_impl(context, ifcos_query, pset, aproperty, some_chars):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have the chars "{some_chars}" not in the property value"')
 
