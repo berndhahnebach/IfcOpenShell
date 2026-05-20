@@ -19,17 +19,37 @@
 from behave import step
 
 
-# link good german article about Property vs. Attribut
+# ************************************************************************************************
+# Translation information
+# ************************************************************************************************
+
+# german article about Property vs. Attribut
+# https://lastbim.com/blog/ifc-eigenschaft-merkmal-oder-attribut
+# in short
+# Attribute = Attribut
+# Property = Eigenschaft
+# PropertySet = Eigenschaftensatz
+#
+# I (bernd) prefere to just keep Property in German :-), thus
+# Attribute = Attribut
+# Property = Property
+# PropertySet = PropertySet
+
+
+# ************************************************************************************************
+# Anzahl von Properties in PSets
+# ************************************************************************************************
+
+
+@step('Alle "{ifcos_query}" Bauteile haben exakt "{property_count}" Property im PSet "{pset}" angehängt')
+def step_impl(context, ifcos_query, property_count, pset):
+    context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
+# bei count 1 Property, bei count > 1 Properties, aber aktuell immer Property
 
 
 # ************************************************************************************************
 # vorhandensein von Properties
-
-
-# bei count 1 Property, bei count > 1 Properties, aber aktuell immer Property
-@step('Alle "{ifcos_query}" Bauteile haben exakt "{property_count}" Property im PSet "{pset}" angehängt')
-def step_impl(context, ifcos_query, property_count, pset):
-    context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
+# ************************************************************************************************
 
 
 @step('Alle "{ifcos_query}" Bauteile haben das PSet.Property "{pset}.{aproperty}" angehängt')
@@ -49,6 +69,7 @@ def step_impl(context, ifcos_queryes, aproperty):
 
 # ************************************************************************************************
 # datentyp der Propertywerte
+# ************************************************************************************************
 
 
 @step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben den Propertytyp "{propertytyp}"')
@@ -58,6 +79,7 @@ def step_impl(context, ifcos_query, pset, aproperty, propertytyp):
 
 # ************************************************************************************************
 # Propertywerte
+# ************************************************************************************************
 
 
 @step('Alle "{ifcos_query}" Bauteile mit dem Property "{pset}.{aproperty}" haben den Propertywert "{propertyvalue}"')
@@ -98,6 +120,7 @@ def step_impl(context, ifcos_query, pset, aproperty, some_chars):
 
 # ************************************************************************************************
 # Vergleich Propertywerte
+# ************************************************************************************************
 
 
 @step('Der Propertywert von "{aproperty1}.{pset1}" stimmt mit dem Propertywert von "{aproperty2}.{pset2}" überein')
