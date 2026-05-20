@@ -22,12 +22,12 @@ from behave import use_step_matcher
 from bimtester.features.steps.attributes_psets_standard import steptools
 
 
-@step('All "{ifcos_query}" elements have exactly "{attribut_count}" in the pset "{pset}"')
-def step_impl(context, ifcos_query, attribut_count, pset):
+@step('All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
+def step_impl(context, ifcos_query, property_count, pset):
     steptools.eleclass_has_propertycount_in_pset(
         context,
         ifcos_query,
-        attribut_count,
+        property_count,
         pset
     )
 
@@ -127,7 +127,7 @@ def step_impl(context, ifcos_query, pset, aproperty, pattern):
     )
 
 
-@step('All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a attribute value out of value range. All items of value range have been used "{valuerange}"')
+@step('All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a property value out of value range. All items of value range have been used "{valuerange}"')
 def step_impl(context, ifcos_query, pset, aproperty, valuerange):
     steptools.eleclass_has_property_valuerange_of(
         context,
@@ -151,7 +151,7 @@ def step_impl(context, ifcos_query, pset, aproperty, some_chars):
     )
 
 
-@step('The attribute value of "{pset1}.{aproperty1}" equals the attribute value of "{pset2}.{aproperty2}" if both are given')
+@step('The property value of "{pset1}.{aproperty1}" equals the property value of "{pset2}.{aproperty2}" if both are given')
 def step_impl(context, pset1, aproperty1, pset2, aproperty2):
     steptools.propertyvalue1_equals_propertyvalue2(
         context,
@@ -162,7 +162,7 @@ def step_impl(context, pset1, aproperty1, pset2, aproperty2):
     )
 
 
-@step('The attribute value of "{pset}.{aproperty}" equals the class attribute Name')
+@step('The property value of "{pset}.{aproperty}" equals the class attribute Name')
 def step_impl(context, pset, aproperty):
     steptools.propertyvalue1_equals_elementclassname(
         context,

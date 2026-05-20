@@ -92,7 +92,7 @@ def eleclass_has_property_in_pset(
     # get the elements
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
 
-    # check if they have the attribute
+    # check if they have the property
     for elem in target_elements:
         ele_allpsets = IfcStore.psets[elem.id()]
         if target_pset not in ele_allpsets:
@@ -131,7 +131,7 @@ def eleclass_has_not_property_in_pset(
     # get the elements
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
 
-    # check if they have not the attribute
+    # check if they have not the property
     for elem in target_elements:
         ele_allpsets = IfcStore.psets[elem.id()]
         if target_pset not in ele_allpsets:
@@ -205,8 +205,8 @@ def eleclass_has_propertytype_of(
     context.falseguids = []
     context.falseprops = {}
 
-    # evtl. Ausgabe Anzahl elem und Anzahl elem die das attribut ueberhaupt angehaengt haben
-    # Anzahl attrib macht keinen sinn wegen schichtattribute
+    # evtl. Ausgabe Anzahl elem und Anzahl elem die das property ueberhaupt angehaengt haben
+    # Anzahl properties macht keinen sinn wegen schichtproperties
 
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
     for elem in target_elements:
@@ -219,8 +219,8 @@ def eleclass_has_propertytype_of(
             if actual_propertytype != target_propertytype:
                 print("{} is not value type {}. It ist of type: {}".format(actual_value, target_propertytype, actual_propertytype))
                 # ein elem koennte mehrmals ein False value type haben
-                # das attribut kann in Schichten vorkommen
-                # das attribut kann doppelt vorhanden sein (waere falsch, aber moeglich)
+                # das property kann in Schichten vorkommen
+                # das property kann doppelt vorhanden sein (waere falsch, aber moeglich)
                 # daher kann ein elem mehrmals zu falseelems hinzugefuegt werden
                 elem_has_false_prop = True
                 context.falseelems.append("{}, {}.{} = {}, {}:".format(
@@ -264,8 +264,8 @@ def eleclass_has_propertyvalue_of(
     context.falseguids = []
     context.falseprops = {}
 
-    # evtl. Ausgabe Anzahl elem die das attribut ueberhaupt angehaengt haben
-    # Anzahl attrib macht keinen sinn wegen schichtattribute
+    # evtl. Ausgabe Anzahl elem die das property ueberhaupt angehaengt haben
+    # Anzahl properties macht keinen sinn wegen schichtproperties
 
     target_elements = util.get_elems(IfcStore.file, target_ifcos_query)
     for elem in target_elements:
@@ -278,8 +278,8 @@ def eleclass_has_propertyvalue_of(
             if actual_value != target_py_value:
                 # print("{} != {}".format(actual_value, target_py_value))
                 # ein elem koennte mehrmals ein False value type haben
-                # das attribut kann in Schichten vorkommen
-                # das attribut kann doppelt vorhanden sein (waere falsch, aber moeglich)
+                # das property kann in Schichten vorkommen
+                # das property kann doppelt vorhanden sein (waere falsch, aber moeglich)
                 # daher kann ein elem mehrmals zu falseelems hinzugefuegt werden
                 elem_has_false_prop = True
                 context.falseelems.append(
@@ -404,8 +404,8 @@ def eleclass_has_property_valuerange_of(
             else:
                 # print("{} not in {}".format(actual_value, target_py_valuerange))
                 # ein elem koennte mehrmals ein False value type haben
-                # das attribut kann in Schichten vorkommen
-                # das attribut kann doppelt vorhanden sein (waere falsch, aber moeglich)
+                # das property kann in Schichten vorkommen
+                # das property kann doppelt vorhanden sein (waere falsch, aber moeglich)
                 # daher koennte ein elem mehrmals zu falseelems hinzugefuegt werden
                 # sicher nur einmal hinzufuegen, sonst koennte falsecount > elemcount werden
                 elem_has_false_prop = True
@@ -655,18 +655,18 @@ def find_property_both(aelem, target_pset, target_property):
     (True or False, value, value data type)
     we need to return True or False because None is a valid property value
     """
-    # it could be on Gsamtwand and each Wandlayer
+    # it could be on Gesamtwand and each Wandlayer
     # returned will be the value on the first found Wandlayer
-    # the gesamtwand attrib value will be overwritten
-    # idee: tuple mit allen attibuten wird zurueckgegeben
-    # auch an jeder Schicht und Gesamtwand koennte ein identisches Attribut doppelt sein
-    # dies dann mit identischen oder auch unterschiedlichen attributwerten
+    # the Gesamtwand property value will be overwritten
+    # idee: tuple mit allen properties wird zurueckgegeben
+    # auch an jeder Schicht und Gesamtwand koennte ein identisches property doppelt sein
+    # dies dann mit identischen oder auch unterschiedlichen propertywerten
     # das koennte mit einem tupel auch gefunden und zurueckgegeben werden
 
-    # wenn pset zweimal vorhanden ist, oder wenn attribut zweimal in einer schicht oder direkt ist wird das nicht gefunden
-    # wobei das waere meines erachtens ein fehler weil doppelattribut, eigener test
+    # wenn pset zweimal vorhanden ist, oder wenn property zweimal in einer schicht oder direkt ist wird das nicht gefunden
+    # wobei das waere meines erachtens ein fehler weil doppelproperty, dafuer eine eigene pruefung
 
-    # heisst attribut kann direkt und aber auch in jeder schicht vorkommen, dann doch sehr viele male
+    # heisst property kann direkt und aber auch in jeder schicht vorkommen, dann doch sehr viele male
 
     props = []
     found = False  # actual_value could be None in ifc
@@ -695,7 +695,7 @@ def find_property_both(aelem, target_pset, target_property):
 
 
 def eleclass_has_propertycount_in_pset(
-    context, target_ifcos_query, target_attribut_count, target_pset
+    context, target_ifcos_query, target_property_count, target_pset
 ):
     
     context.falseelems = []
@@ -707,12 +707,12 @@ def eleclass_has_propertycount_in_pset(
         ele_allpsets = IfcStore.psets[elem.id()]
         if target_pset in ele_allpsets:
             # IfcOS saves the pset id on one key in the dict, thus minus 1
-            actual_attribut_count = str(len(ele_allpsets[target_pset]) - 1)
+            actual_property_count = str(len(ele_allpsets[target_pset]) - 1)
             # print(elem)
-            # print(actual_attribut_count)
-            if actual_attribut_count != target_attribut_count:
+            # print(actual_property_count)
+            if actual_property_count != target_property_count:
                 context.falseelems.append("{}, {} properties".format(
-                        util.get_false_elem_string(elem, ele_allpsets), actual_attribut_count
+                        util.get_false_elem_string(elem, ele_allpsets), actual_property_count
                 ))
                 context.falseguids.append(elem.GlobalId)
                 context.falseprops[elem.id()] = str(ele_allpsets)
@@ -724,12 +724,12 @@ def eleclass_has_propertycount_in_pset(
         context.elemcount,
         context.falsecount,
         context.falseelems,
-        message_all_falseelems=_("All {elemcount} {ifc_class} elements do not have exactly {parameter} attributes in the pset."),
+        message_all_falseelems=_("All {elemcount} {ifc_class} elements do not have exactly {parameter} properties in the pset."),
         message_some_falseelems=_("The following {falsecount} of {elemcount} {ifc_class} elements do not have exactly {parameter} in the pset: {falseelems}"),
         message_no_elems=_("There are no {ifc_class} elements in the IFC file."),
-        parameter=target_attribut_count
+        parameter=target_property_count
     )
-    # evtl. als parameter die keys des dict, also die attributnamen, dann super fehlerausgabe
+    # evtl. als parameter die keys des dict, also die propertybezeichner, dann super fehlerausgabe
     # the pset name is missing in the failing message, but it is in the step test name
 
     return

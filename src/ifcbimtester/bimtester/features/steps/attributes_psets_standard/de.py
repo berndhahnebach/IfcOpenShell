@@ -27,9 +27,9 @@ from behave import step
 # vorhandensein von Properties
 
 
-@step('Alle "{ifcos_query}" Bauteile haben exakt "{attribut_count}" Attribute im PSet "{pset}" angehängt')
-def step_impl(context, ifcos_query, attribut_count, pset):
-    context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{attribut_count}" in the pset "{pset}"')
+@step('Alle "{ifcos_query}" Bauteile haben exakt "{property_count}" Attribute im PSet "{pset}" angehängt')
+def step_impl(context, ifcos_query, property_count, pset):
+    context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
 
 
 @step('Alle "{ifcos_query}" Bauteile haben das PSet.Attribut "{pset}.{aproperty}" angehängt')
@@ -88,7 +88,7 @@ def step_impl(context, ifcos_query, pset, aproperty, valuerange):
 
 @step('Alle "{ifcos_query}" Bauteile mit dem angehängten Attribut "{pset}.{aproperty}" nutzten eines der Attributwerte. Alle vorgegebenen Attributwerte werden verwendet. "{valuerange}"')
 def step_impl(context, ifcos_query, pset, aproperty, valuerange):
-    context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a attribute value out of value range. All items of value range have been used "{valuerange}"')
+    context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a property value out of value range. All items of value range have been used "{valuerange}"')
 
 
 @step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben die Zeichenfolge "{some_chars}" nicht im Attributwert"')
@@ -102,10 +102,10 @@ def step_impl(context, ifcos_query, pset, aproperty, some_chars):
 
 @step('Der Attributewert von "{aproperty1}.{pset1}" stimmt mit dem Attributewert von "{aproperty2}.{pset2}" überein')
 def step_impl(context, aproperty1, pset1, aproperty2, pset2):
-    context.execute_steps(f'* The attribute value of "{aproperty1}.{pset1}" equals the attribute value of "{aproperty2}.{pset2}" if both are given')
+    context.execute_steps(f'* The property value of "{aproperty1}.{pset1}" equals the property value of "{aproperty2}.{pset2}" if both are given')
     # "if both are given" im engl. text ist falsch, das sollte in extra tests vorher geprueft werden
 
 
 @step('Der Wert des Attributes "{pset}.{aproperty}" ist gleich dem Wert des Bauteilattributes Name')
 def step_impl(context, pset, aproperty):
-    context.execute_steps(f'* The attribute value of "{pset}.{aproperty}" equals the class attribute Name')
+    context.execute_steps(f'* The property value of "{pset}.{aproperty}" equals the class attribute Name')
