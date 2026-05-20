@@ -27,7 +27,7 @@ from behave import step
 # vorhandensein von Properties
 
 
-@step('Alle "{ifcos_query}" Bauteile haben exakt "{property_count}" Attribute im PSet "{pset}" angehängt')
+@step('Alle "{ifcos_query}" Bauteile haben exakt "{property_count}" Property im PSet "{pset}" angehängt')
 def step_impl(context, ifcos_query, property_count, pset):
     context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
 
