@@ -43,7 +43,7 @@ def step_impl(context, ifcos_query, pset, aproperty):
     context.execute_steps(f'* All "{ifcos_query}" elements have not a "{pset}.{aproperty}" property')
 
 
-@step('Alle "{ifcos_query}" Bauteile haben das Attribut "{aproperty}" im Common PSet angehängt')
+@step('Alle "{ifcos_query}" Bauteile haben das Property "{aproperty}" im Common PSet angehängt')
 def step_impl(context, ifcos_queryes, aproperty):
     context.execute_steps(f'* All "{ifcos_query}" elements have a property "{aproperty}" in the Common pset')
 
