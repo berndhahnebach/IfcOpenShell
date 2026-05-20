@@ -19,7 +19,7 @@
 from behave import step
 from behave import use_step_matcher
 
-from bimtester.features.steps.attributes_psets_standard import steptools
+from bimtester.features.steps.psets_standard_properties import steptools
 
 
 @step('All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')

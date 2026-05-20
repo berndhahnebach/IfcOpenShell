@@ -18,7 +18,7 @@
 
 from behave import step
 
-from bimtester.features.steps.attributes_eleclasses import steptools
+from bimtester.features.steps.eleclasses_attributes import steptools
 
 
 @step('All "{ifcos_query}" objects do have a valid value assigned for the attribut Name')
