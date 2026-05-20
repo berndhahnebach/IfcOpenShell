@@ -32,12 +32,12 @@ def step_impl(context, ifcos_query, property_count, pset):
     context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile haben das PSet.Attribut "{pset}.{aproperty}" angehängt')
+@step('Alle "{ifcos_query}" Bauteile haben das PSet.Property "{pset}.{aproperty}" angehängt')
 def step_impl(context, ifcos_query, pset, aproperty):
     context.execute_steps(f'* All "{ifcos_query}" elements have a "{pset}.{aproperty}" property')
 
 
-@step('Alle "{ifcos_query}" Bauteile haben das PSet.Attribut "{pset}.{aproperty}" nicht angehängt')
+@step('Alle "{ifcos_query}" Bauteile haben das PSet.Property "{pset}.{aproperty}" nicht angehängt')
 def step_impl(context, ifcos_query, pset, aproperty):
     context.execute_steps(f'* All "{ifcos_query}" elements have not a "{pset}.{aproperty}" property')
 
