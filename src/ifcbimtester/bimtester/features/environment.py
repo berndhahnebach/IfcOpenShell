@@ -113,24 +113,58 @@ def after_feature(context, feature):
     print("After feature: {} --> {}".format(feature.name, feature.status))
     # print(str(feature.status))
     # print(context.skip_all_other_features)
-    # TODO: mit userdata bei start bimtester uebergeben
+    #
+    # TODO: move outside bimtester source code
+    # mit userdata bei start bimtester uebergeben
     #
     # Wenn input feature nicht erfuellt ist, sofort abbruch
     #
-    features_to_continue = [
-        "681_Weitere",
-        # "682_Modellpruefungen_FBJ_Weitere_input",
-        "683_Modellpruefungen_FBJ_Weitere_output",
-        "684_Modellpruefungen_FBJ_Geomqualitaet_output",
-        "686_Modellpruefungen_TRW_Weitere_output",
-        "891_Projektpruefungen_Allg",
-        # "892_Projektpruefungen_TRW_input",
-        "893_Projektpruefungen_TRW_output",
-        # "899_Projektpruefungen_Name",
-    ]
-    if str(feature.status) == "Status.failed" and feature.name not in features_to_continue:
+    # anders aufziehen, evtl. features to break
+    # das kommt doch aus zeiten wo laufzeit ein problem warranty
+    # warum nicht immer durchlaufen lassen
+    # macht fuer output sinn
+    # bei input evtl. auch, nicht immer x-exporte noetig
+    #
+    # features_to_continue = [
+    #    "681_Weitere",
+    #    # "682_Modellpruefungen_FBJ_Weitere_input",
+    #    "683_Modellpruefungen_FBJ_Weitere_output",
+    #    "684_Modellpruefungen_FBJ_Geomqualitaet_output",
+    #    "686_Modellpruefungen_TRW_Weitere_output",
+    #    "891_Projektpruefungen_Allg",
+    #    # "892_Projektpruefungen_TRW_input",
+    #    "893_Projektpruefungen_TRW_output",
+    #    # "899_Projektpruefungen_Name",
+    #]
+    #if str(feature.status) == "Status.failed" and feature.name not in features_to_continue:
+    #    # print("set to skip all other features")
+    #    context.skip_all_other_features["skip"] = True
+
+    # temporary do not skip any pruefung run
+    # context.skip_all_other_features["skip"] = False
+
+    # idee:
+    # break bei fehler in Schema oder Exporteinstellung, das macht immer Sinn !!!
+    #
+    # break bei fehler von inputpruefung
+    # bei input darf bei fehler das 999 nicht laufen
+    # ideal waere, wenn nur 999 nicht laufen wuerde
+    # waere auch fuer ouput cool
+    # es gibt pruefung 998 und 999
+    # 998 laeuft wenn schema und exporteinstellungen gruen
+    # 999 nur wenn alle features auf gruen
+    if (
+        str(feature.status) == "Status.failed"
+        and (
+            feature.name.startswith("111")  # IFC2x3
+            or feature.name.startswith("112")  # IFC4
+            or feature.name.startswith("131")  # Exporteinstellungen
+            or feature.name.endswith("_input")
+        )
+    ):
         # print("set to skip all other features")
         context.skip_all_other_features["skip"] = True
+
     # print(context.skip_all_other_features)
 
 
