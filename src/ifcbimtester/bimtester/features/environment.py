@@ -115,17 +115,17 @@ def after_feature(context, feature):
     # print(context.skip_all_other_features)
     # TODO: mit userdata bei start bimtester uebergeben
     #
-    # Wenn allplan feature nicht erfuellt ist, sofort abbruch
+    # Wenn input feature nicht erfuellt ist, sofort abbruch
     #
     features_to_continue = [
         "681_Weitere",
-        # "682_Modellpruefungen_FBJ_Weitere_allplan",
-        "683_Modellpruefungen_FBJ_Weitere_bimtester",
-        "684_Modellpruefungen_FBJ_Geomqualitaet_bimtester",
-        "686_Modellpruefungen_TRW_Weitere_bimtester",
+        # "682_Modellpruefungen_FBJ_Weitere_input",
+        "683_Modellpruefungen_FBJ_Weitere_output",
+        "684_Modellpruefungen_FBJ_Geomqualitaet_output",
+        "686_Modellpruefungen_TRW_Weitere_output",
         "891_Projektpruefungen_Allg",
-        # "892_Projektpruefungen_TRW_allplan",
-        "893_Projektpruefungen_TRW_bimtester",
+        # "892_Projektpruefungen_TRW_input",
+        "893_Projektpruefungen_TRW_output",
         # "899_Projektpruefungen_Name",
     ]
     if str(feature.status) == "Status.failed" and feature.name not in features_to_continue:
