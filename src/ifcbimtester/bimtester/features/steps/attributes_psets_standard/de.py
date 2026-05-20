@@ -100,7 +100,7 @@ def step_impl(context, ifcos_query, pset, aproperty, some_chars):
 # Vergleich Propertywerte
 
 
-@step('Der Attributewert von "{aproperty1}.{pset1}" stimmt mit dem Attributewert von "{aproperty2}.{pset2}" überein')
+@step('Der Propertywert von "{aproperty1}.{pset1}" stimmt mit dem Propertywert von "{aproperty2}.{pset2}" überein')
 def step_impl(context, aproperty1, pset1, aproperty2, pset2):
     context.execute_steps(f'* The property value of "{aproperty1}.{pset1}" equals the property value of "{aproperty2}.{pset2}" if both are given')
     # "if both are given" im engl. text ist falsch, das sollte in extra tests vorher geprueft werden
