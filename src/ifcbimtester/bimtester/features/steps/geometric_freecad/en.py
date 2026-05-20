@@ -270,13 +270,17 @@ def eleclass_existing_geometric_representation_has_no_errors(
     target_ifcos_query
 ):
 
+    # besser die pruefung auftrennen und fuer die einzelnen bausteine
+    # jeweils eigene pruefungen erstellen
+    # einfacher in der behebung der fehler
+
     # es wir davon ausgegangen das eine Geometrie vorhanden ist
     # heisst brep is nicht None und nicht "" siehe test vorher
-    # wenn keine Geometrie da ist ist das keine Fehler
+    # wenn keine Geometrie da ist, ist das kein Fehler
     # nur eine fehlerhafte Geometrie ist ein Fehler
     #
     # FreeCAD BOP check
-    # einige eigene weiterfuehrende checks wie
+    # weitere eigene weiterfuehrende checks wie
     # alle kanten haben exakt zwei flaechen (kann oft durch loeschen der flaechen repariert werden)
     # volumen > 10 mm3 wuerfel kantelaenge 2.154 mm
     # kante > 0.2 mm
