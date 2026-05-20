@@ -51,7 +51,7 @@ def step_impl(context, ifcos_queryes, aproperty):
 # datentyp der Propertywerte
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben den Attributtyp "{propertytyp}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben den Propertytyp "{propertytyp}"')
 def step_impl(context, ifcos_query, pset, aproperty, propertytyp):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" are of type "{propertytyp}"')
 
