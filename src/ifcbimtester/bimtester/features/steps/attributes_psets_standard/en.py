@@ -32,6 +32,7 @@ def step_impl(context, ifcos_query, attribut_count, pset):
     )
 
 
+# duplicate, but originated from ifcos vanilla, not in use by bernd
 @step('All "{ifcos_query}" elements have an "{aproperty}" property in the "{pset}" pset')
 def step_impl(context, ifcos_query, pset, aproperty):
     steptools.eleclass_has_property_in_pset(

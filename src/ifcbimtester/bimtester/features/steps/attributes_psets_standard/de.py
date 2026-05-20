@@ -19,11 +19,20 @@
 from behave import step
 
 
+# ToDo, switch from Attribut to Property
+# link good german artikle
+
+
+# ************************************************************************************************
+# vorhandensein von Properties
+
+
 @step('Alle "{ifcos_query}" Bauteile haben exakt "{attribut_count}" Attribute im PSet "{pset}" angehängt')
 def step_impl(context, ifcos_query, attribut_count, pset):
     context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{attribut_count}" in the pset "{pset}"')
 
 
+# doppelt
 @step('Alle "{ifcos_query}" Bauteile haben das Attribut "{aproperty}" im PSet "{pset}"')
 def step_impl(context, ifcos_query, pset, aproperty):
     context.execute_steps(f'* All "{ifcos_query}" elements have an "{aproperty}" property in the "{pset}" pset')
@@ -44,9 +53,17 @@ def step_impl(context, ifcos_queryes, aproperty):
     context.execute_steps(f'* All "{ifcos_query}" elements have a property "{aproperty}" in the Common pset')
 
 
+# ************************************************************************************************
+# datentyp der Propertywerte
+
+
 @step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben den Attributtyp "{propertytyp}"')
 def step_impl(context, ifcos_query, pset, aproperty, propertytyp):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" are of type "{propertytyp}"')
+
+
+# ************************************************************************************************
+# Propertywerte
 
 
 @step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben den Attributwert "{propertyvalue}"')
@@ -83,6 +100,10 @@ def step_impl(context, ifcos_query, pset, aproperty, valuerange):
 @step('Alle "{ifcos_query}" Bauteile mit dem Attribut "{pset}.{aproperty}" haben die Zeichenfolge "{some_chars}" nicht im Attributwert"')
 def step_impl(context, ifcos_query, pset, aproperty, some_chars):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have the chars "{some_chars}" not in the property value"')
+
+
+# ************************************************************************************************
+# Vergleich Propertywerte
 
 
 @step('Der Attributewert von "{aproperty1}.{pset1}" stimmt mit dem Attributewert von "{aproperty2}.{pset2}" überein')
