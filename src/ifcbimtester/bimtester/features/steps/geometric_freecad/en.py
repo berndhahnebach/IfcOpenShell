@@ -32,7 +32,7 @@ std_allplan_psets = "AllplanAttributes"
 
 @step('All "{ifcos_query}" elements must have a Allplan volume greater than 0.0.')
 def step_impl(context, ifcos_query):
-    eleclass_has_allplan_volume_greater_zero(
+    has_allplan_volume_greater_zero(
         context,
         ifcos_query,
     )
@@ -40,32 +40,32 @@ def step_impl(context, ifcos_query):
 
 @step('All "{ifcos_query}" elements must have a geometric representation which could be parsed')
 def step_impl(context, ifcos_query):
-    eleclass_has_geometric_representation_parsed_by_ifcos(context, ifcos_query)
+    has_geometric_representation_parsed_by_ifcos(context, ifcos_query)
 
 
 @step('All "{ifcos_query}" elements with existing geometry have no errors')
 def step_impl(context, ifcos_query):
-    eleclass_existing_geometric_representation_has_no_errors(context, ifcos_query)
+    existing_geometric_representation_has_no_errors(context, ifcos_query)
 
 
 @step('All "{ifcos_query}" elements must have a maximum edge length of "{max_edge_length}" mm in their geometry')
 def step_impl(context, ifcos_query, max_edge_length):
-    eleclass_existing_geometric_representation_has_max_edge_length(context, ifcos_query, max_edge_length)
+    existing_geometric_representation_has_max_edge_length(context, ifcos_query, max_edge_length)
 
 
 @step('All "{ifcos_query}" elements must have a geometry consisting only one volume solid')
 def step_impl(context, ifcos_query):
-    eleclass_existing_geometric_representation_has_single_solid(context, ifcos_query)
+    existing_geometric_representation_has_single_solid(context, ifcos_query)
 
 
 @step('All "{ifcos_query}" elements must have a geometry which is not empty just becaause of a opening bigger than the element')
 def step_impl(context, ifcos_query):
-    eleclass_existing_geometric_representation_has_not_opening_bigger_than_element(context, ifcos_query)
+    existing_geometric_representation_has_not_opening_bigger_than_element(context, ifcos_query)
 
 
 @step('All "{ifcos_query}" elements must have a Allplan volume to FreeCAD volume ratio between 99 und 101 prozent.')
 def step_impl(context, ifcos_query):
-    eleclass_has_given_allplan_to_freecad_volumen_ratio(
+    has_given_allplan_to_freecad_volumen_ratio(
         context,
         ifcos_query
     )
@@ -74,7 +74,7 @@ def step_impl(context, ifcos_query):
 # ich baue doch den zur wandpruefung mit geomtest um
 @step('All "{ifcos_query}" elements do only have the "{aquantity}" value range of "{valuerange}"')
 def step_impl(context, ifcos_query, aquantity, valuerange):
-    eleclass_has_wall_thickness_valuerange_of(
+    has_wall_thickness_valuerange_of(
         context,
         ifcos_query,
         aquantity,
@@ -85,12 +85,12 @@ def step_impl(context, ifcos_query, aquantity, valuerange):
 # deprecated
 @step('All "{ifcos_query}" elements must have a geometric representation without errors')
 def step_impl(context, ifcos_query):
-    depricated_eleclass_has_geometric_representation_without_errors(context, ifcos_query)
+    depricated_has_geometric_representation_without_errors(context, ifcos_query)
 
 
 # ************************************************************************************************
 # test methods
-def eleclass_has_allplan_volume_greater_zero(
+def has_allplan_volume_greater_zero(
     context,
     target_ifcos_query
 ):
@@ -147,7 +147,7 @@ def eleclass_has_allplan_volume_greater_zero(
     # the pset name is missing in the failing message, but it is in the step test name
 
 
-def eleclass_has_geometric_representation_parsed_by_ifcos(
+def has_geometric_representation_parsed_by_ifcos(
     context,
     target_ifcos_query
 ):
@@ -234,7 +234,7 @@ def eleclass_has_geometric_representation_parsed_by_ifcos(
             error = "No Vertexes"
             IfcStore.geom_has_elements[elem.id()] = False
             # siehe separate methode
-            # eleclass_existing_geometric_representation_has_not_opening_bigger_than_element()
+            # existing_geometric_representation_has_not_opening_bigger_than_element()
             # haeufiges problem "Oeffnung groesser als Objekt, daher keine Geometrie."
         else:
             IfcStore.geom_has_elements[elem.id()] = True
@@ -265,7 +265,7 @@ def eleclass_has_geometric_representation_parsed_by_ifcos(
     )
 
 
-def eleclass_existing_geometric_representation_has_no_errors(
+def existing_geometric_representation_has_no_errors(
     context,
     target_ifcos_query
 ):
@@ -360,7 +360,7 @@ def eleclass_existing_geometric_representation_has_no_errors(
     )
 
 
-def eleclass_existing_geometric_representation_has_max_edge_length(
+def existing_geometric_representation_has_max_edge_length(
     context,
     target_ifcos_query,
     str_max_edge_length
@@ -430,7 +430,7 @@ def eleclass_existing_geometric_representation_has_max_edge_length(
     )
 
 
-def eleclass_existing_geometric_representation_has_single_solid(
+def existing_geometric_representation_has_single_solid(
     context,
     target_ifcos_query
 ):
@@ -473,7 +473,7 @@ def eleclass_existing_geometric_representation_has_single_solid(
     )
 
 
-def eleclass_existing_geometric_representation_has_not_opening_bigger_than_element(
+def existing_geometric_representation_has_not_opening_bigger_than_element(
     context,
     target_ifcos_query
 ):
@@ -525,7 +525,7 @@ def eleclass_existing_geometric_representation_has_not_opening_bigger_than_eleme
 
 
 # ********************************************************************************************
-def eleclass_has_given_allplan_to_freecad_volumen_ratio(
+def has_given_allplan_to_freecad_volumen_ratio(
     context,
     target_ifcos_query
 ):
@@ -622,7 +622,7 @@ def eleclass_has_given_allplan_to_freecad_volumen_ratio(
     )
 
 
-def eleclass_has_wall_thickness_valuerange_of(
+def has_wall_thickness_valuerange_of(
     context, target_ifcos_query, target_quantity, target_valuerange
 ):
 
@@ -675,7 +675,7 @@ def eleclass_has_wall_thickness_valuerange_of(
 
 
 # ********************************************************************************************
-def depricated_eleclass_has_geometric_representation_without_errors(
+def depricated_has_geometric_representation_without_errors(
     context,
     target_ifcos_query
 ):
