@@ -27,6 +27,7 @@ from behave import step
 # vorhandensein von Properties
 
 
+# bei count 1 Property, bei count > 1 Properties, aber aktuell immer Property
 @step('Alle "{ifcos_query}" Bauteile haben exakt "{property_count}" Property im PSet "{pset}" angehängt')
 def step_impl(context, ifcos_query, property_count, pset):
     context.execute_steps(f'* All "{ifcos_query}" elements have exactly "{property_count}" in the pset "{pset}"')
