@@ -19,8 +19,7 @@
 from behave import step
 
 
-# ToDo, switch from Attribut to Property
-# link good german article
+# link good german article about Property vs. Attribut
 
 
 # ************************************************************************************************
@@ -82,12 +81,12 @@ def step_impl(context, ifcos_query, pset, aproperty, pattern):
     context.execute_steps(f'* All "{ifcos_query}" elements  with a "{pset}.{aproperty}" have a value matching the pattern "{pattern}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem angehängten Attribut "{pset}.{aproperty}" verwenden eines der Propertywerte "{valuerange}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem angehängten Property "{pset}.{aproperty}" verwenden eines der Propertywerte "{valuerange}"')
 def step_impl(context, ifcos_query, pset, aproperty, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a value range of "{valuerange}"')
 
 
-@step('Alle "{ifcos_query}" Bauteile mit dem angehängten Attribut "{pset}.{aproperty}" nutzten eines der Propertywerte. Alle vorgegebenen Propertywerte werden verwendet. "{valuerange}"')
+@step('Alle "{ifcos_query}" Bauteile mit dem angehängten Property "{pset}.{aproperty}" nutzten eines der Propertywerte. Alle vorgegebenen Propertywerte werden verwendet. "{valuerange}"')
 def step_impl(context, ifcos_query, pset, aproperty, valuerange):
     context.execute_steps(f'* All "{ifcos_query}" elements with a "{pset}.{aproperty}" have a property value out of value range. All items of value range have been used "{valuerange}"')
 
