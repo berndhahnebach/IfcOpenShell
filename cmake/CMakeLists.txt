@@ -344,6 +344,28 @@ if(BUILD_IFCGEOM AND WITH_OPENCASCADE)
     endif()
     set(SWIG_DEFINES ${SWIG_DEFINES} -DIFOPSH_WITH_OPENCASCADE)
     list(APPEND GEOMETRY_KERNELS opencascade)
+
+    # No rpath on Windows: stage the DLLs of an OCCT outside the compiler's
+    # own prefix (e.g. a self-built one) next to the executables, so they run
+    # from the build tree without PATH changes.
+    if(WIN32 AND CMAKE_RUNTIME_OUTPUT_DIRECTORY AND TARGET TKernel)
+        foreach(_cfg _RELEASE _NOCONFIG "")
+            get_target_property(_occt_dll TKernel IMPORTED_LOCATION${_cfg})
+            if(_occt_dll)
+                break()
+            endif()
+            set(_occt_dll "")
+        endforeach()
+        get_filename_component(_compiler_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+        if(_occt_dll)
+            get_filename_component(_occt_bin "${_occt_dll}" DIRECTORY)
+            if(NOT _occt_bin STREQUAL _compiler_bin)
+                file(GLOB _occt_dlls "${_occt_bin}/*.dll")
+                file(COPY ${_occt_dlls} DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+                message(STATUS "Copied OpenCASCADE DLLs from ${_occt_bin}")
+            endif()
+        endif()
+    endif()
 endif()
 
 message(STATUS "BUILD_IFCGEOM WITH_MANIFOLD: ${BUILD_IFCGEOM} ${WITH_MANIFOLD}")
