@@ -50,7 +50,11 @@ foreach(kernel ${GEOMETRY_KERNELS})
     ifcopenshell_install_runtime_dlls(TARGETS ${KERNEL_TARGET})
 
     if(${kernel} STREQUAL "cgal")
-        set_property(TARGET ${KERNEL_TARGET} APPEND_STRING PROPERTY COMPILE_FLAGS " -DCGAL_HAS_THREADS")
+        # CGAL_DEBUG keeps CGAL's assertions in release builds. Without them an
+        # inconsistent Nef result (e.g. unpaired halfedges in pair_up_halfedges)
+        # is undefined behaviour and crashes; with them it throws and the
+        # element fails gracefully.
+        set_property(TARGET ${KERNEL_TARGET} APPEND_STRING PROPERTY COMPILE_FLAGS " -DCGAL_HAS_THREADS -DCGAL_DEBUG")
 
         set(KERNEL_TARGET_SIMPLE "${KERNEL_TARGET}_simple")
         add_library(${KERNEL_TARGET_SIMPLE} SHARED ${IFCGEOM_FILES})
@@ -61,7 +65,7 @@ foreach(kernel ${GEOMETRY_KERNELS})
         ifcopenshell_wasm_plugin_link_options(${KERNEL_TARGET_SIMPLE} ifcopenshell_register_kernel_plugin_v1 EXPORT_DYNAMIC)
 
         set_target_properties(${KERNEL_TARGET_SIMPLE} PROPERTIES
-            COMPILE_FLAGS "-DIFC_GEOMLIBRARY_EXPORTS -DIFOPSH_SIMPLE_KERNEL -DCGAL_HAS_THREADS"
+            COMPILE_FLAGS "-DIFC_GEOMLIBRARY_EXPORTS -DIFOPSH_SIMPLE_KERNEL -DCGAL_HAS_THREADS -DCGAL_DEBUG"
             OUTPUT_NAME "ifcopenshell_geometry_kernel_cgalsimple"
             RUNTIME_OUTPUT_DIRECTORY "${kernel_plugin_runtime_dir}"
             LIBRARY_OUTPUT_DIRECTORY "${kernel_plugin_runtime_dir}"
