@@ -193,6 +193,12 @@ if(WASM_BUILD)
     set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
 endif()
 
+# Windows has no rpath, so executables only find DLLs from the build tree
+# when they share a directory. Plug-ins follow IfcParse/IfcGeom there.
+if(WIN32 AND NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
+
 # Make sure CMake modules in this project are found first
 list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
