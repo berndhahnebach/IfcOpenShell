@@ -712,6 +712,66 @@ void ViewportCore::dollyBy(float notches) {
     host_->requestFrame();
 }
 
+void ViewportCore::dollyTowardCursor(float notches, int x_pixels, int y_pixels) {
+    // Zoom anchor. A wheel burst at an unmoved cursor keeps the same point
+    // (zooming toward it leaves it under the cursor), so only the first
+    // notch of a burst pays for the GPU surface pick.
+    const bool reuse = zoom_anchor_valid_
+        && zoom_anchor_px_ == Eigen::Vector2i(x_pixels, y_pixels)
+        && zoom_anchor_timer_.isValid() && zoom_anchor_timer_.elapsed() < 300;
+    if (!reuse) {
+        std::uint32_t id = 0;
+        Eigen::Vector3f hit_pos, hit_normal;
+        if (pickSurfaceAt(x_pixels, y_pixels, id, hit_pos, hit_normal)) {
+            zoom_anchor_ = hit_pos;
+        } else {
+            // Empty space: cursor ray ∩ plane through the target, facing the
+            // camera. Two unprojected depths give the ray for either
+            // projection and either depth convention.
+            Eigen::Matrix4f view, proj, inv_vp;
+            buildViewProj(view, proj);
+            if (configured_w_ <= 0 || configured_h_ <= 0
+                || !tryInvert4f(proj * view, inv_vp)) {
+                dollyBy(notches);
+                return;
+            }
+            const float ndc_x = (2.0f * float(x_pixels) / float(configured_w_)) - 1.0f;
+            const float ndc_y = 1.0f - (2.0f * float(y_pixels) / float(configured_h_));
+            auto unproject = [&](float z) {
+                const Eigen::Vector4f w = inv_vp * Eigen::Vector4f(ndc_x, ndc_y, z, 1.0f);
+                return Eigen::Vector3f(w.head<3>() / w.w());
+            };
+            const Eigen::Vector3f p0 = unproject(0.5f);
+            const Eigen::Vector3f p1 = unproject(0.9f);
+            const Eigen::Vector3f target(camera_target_[0], camera_target_[1], camera_target_[2]);
+            const Eigen::Vector3f eye = orbitEye(camera_target_, camera_distance_,
+                                                 camera_yaw_deg_, camera_pitch_deg_);
+            const Eigen::Vector3f fwd = (target - eye).normalized();
+            const float denom = (p1 - p0).dot(fwd);
+            if (!p0.allFinite() || !p1.allFinite() || std::abs(denom) < 1e-9f) {
+                dollyBy(notches);
+                return;
+            }
+            zoom_anchor_ = p0 + (p1 - p0) * ((target - p0).dot(fwd) / denom);
+        }
+        zoom_anchor_px_    = Eigen::Vector2i(x_pixels, y_pixels);
+        zoom_anchor_valid_ = true;
+    }
+    zoom_anchor_timer_.start();
+
+    // Scale eye and target toward the anchor by the same factor: the view
+    // direction is unchanged and the anchor stays on the same screen pixel.
+    const float new_distance = std::max(0.01f, camera_distance_ * std::pow(0.9f, notches));
+    const float factor = new_distance / camera_distance_;
+    const Eigen::Vector3f target(camera_target_[0], camera_target_[1], camera_target_[2]);
+    const Eigen::Vector3f moved = zoom_anchor_ + (target - zoom_anchor_) * factor;
+    camera_target_[0] = moved.x();
+    camera_target_[1] = moved.y();
+    camera_target_[2] = moved.z();
+    camera_distance_  = new_distance;
+    host_->requestFrame();
+}
+
 void ViewportCore::setPivotIndicatorVisible(bool visible, int hide_after_ms,
                                             bool at_orbit_pivot) {
     pivot_indicator_visible_ = visible;

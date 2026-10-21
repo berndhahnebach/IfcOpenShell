@@ -123,6 +123,10 @@ public:
     bool autoPivotOnSelect() const;
     void setAutoPivotOnSelect(bool value);
 
+    // Mouse wheel zooms toward the point under the cursor.
+    bool zoomToMouse() const;
+    void setZoomToMouse(bool value);
+
 signals:
     void geometryLibraryChanged(const QString& value);
     void showStatsChanged(bool value);
@@ -138,6 +142,7 @@ signals:
     void hizEnabledChanged(bool value);
     void navPresetChanged(NavPreset value);
     void autoPivotOnSelectChanged(bool value);
+    void zoomToMouseChanged(bool value);
 
 private:
     AppSettings();
@@ -158,6 +163,7 @@ private:
     bool hiz_enabled_ = true;
     NavPreset nav_preset_ = NavPreset::Blender;
     bool auto_pivot_on_select_ = true;
+    bool zoom_to_mouse_ = true;
 };
 
 #endif // APPSETTINGS_H

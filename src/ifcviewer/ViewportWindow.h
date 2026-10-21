@@ -262,6 +262,9 @@ public:
     // When on, a mouse selection moves the orbit pivot to the selected
     // object(s) without moving the camera. Off clears the pivot.
     void setAutoPivotOnSelect(bool enabled);
+    // When on, the mouse wheel zooms toward the point under the cursor
+    // instead of the screen centre.
+    void setZoomToMouse(bool enabled) { zoom_to_mouse_ = enabled; }
 
 
     // Queue a one-shot framebuffer capture: the next rendered frame is
@@ -774,6 +777,7 @@ private:
     // back at fps_press_center_ so the orbit camera resumes cleanly.
     bool         fps_mode_                    = false;
     bool         auto_pivot_on_select_        = false;
+    bool         zoom_to_mouse_               = false;
     std::unordered_set<int> fps_keys_held_;
     Stopwatch    fps_last_tick_;
     Eigen::Vector2i       fps_press_center_;

@@ -207,6 +207,12 @@ void SettingsDialog::setupUi() {
             "The camera does not move; clicking empty space resets it.");
         form->addRow("Rotate Around Selection", auto_pivot_on_select_check_);
 
+        zoom_to_mouse_check_ = new QCheckBox(body);
+        zoom_to_mouse_check_->setToolTip(
+            "The mouse wheel zooms toward the point under the cursor instead "
+            "of the screen center.");
+        form->addRow("Zoom to Mouse Position", zoom_to_mouse_check_);
+
         section->addBodyWidget(body);
         layout->addWidget(section);
 
@@ -395,6 +401,7 @@ void SettingsDialog::syncFromSettings() {
     hiz_resolution_spin_->setValue(AppSettings::instance().hizResolution());
     nav_preset_combo_->setCurrentIndex(static_cast<int>(AppSettings::instance().navPreset()));
     auto_pivot_on_select_check_->setChecked(AppSettings::instance().autoPivotOnSelect());
+    zoom_to_mouse_check_->setChecked(AppSettings::instance().zoomToMouse());
     syncThemeSettings();
 }
 
@@ -444,6 +451,7 @@ void SettingsDialog::onAccepted() {
     AppSettings::instance().setNavPreset(
         static_cast<AppSettings::NavPreset>(nav_preset_combo_->currentIndex()));
     AppSettings::instance().setAutoPivotOnSelect(auto_pivot_on_select_check_->isChecked());
+    AppSettings::instance().setZoomToMouse(zoom_to_mouse_check_->isChecked());
     auto& interface_settings = bonsaiviewer::ViewerSettings::instance();
     interface_settings.setThemeMode(
         static_cast<bonsaiviewer::ViewerSettings::ThemeMode>(theme_mode_combo_->currentData().toInt()));

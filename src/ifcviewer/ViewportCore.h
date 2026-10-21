@@ -311,6 +311,11 @@ public:
     void orbitBy(float dx_px, float dy_px);
     void panBy(float dx_px, float dy_px, int viewport_height_px);
     void dollyBy(float notches);
+    // Like dollyBy, but zooms toward the world point under the cursor
+    // (device pixels) so that point stays under the cursor. Uses the surface
+    // under the cursor, or the cursor ray's hit on the plane through the
+    // camera target when the cursor is over empty space.
+    void dollyTowardCursor(float notches, int x_pixels, int y_pixels);
 
     // Orbit pivot separate from the camera target. When set, orbitBy turns
     // the camera around this point instead of the screen-centre target; the
@@ -1253,6 +1258,11 @@ private:
     bool                  pivot_indicator_at_orbit_pivot_ = false;
     bool                  has_orbit_pivot_ = false;
     Eigen::Vector3f       orbit_pivot_ = Eigen::Vector3f::Zero();
+    // dollyTowardCursor anchor, reused across one wheel burst.
+    bool                  zoom_anchor_valid_ = false;
+    Eigen::Vector2i       zoom_anchor_px_ = Eigen::Vector2i::Zero();
+    Eigen::Vector3f       zoom_anchor_ = Eigen::Vector3f::Zero();
+    Stopwatch             zoom_anchor_timer_;
 
     // HiZ occlusion-cull pipeline group. Downsamples MSAA depth into a
     // mip pyramid; consumed by next-frame cull.

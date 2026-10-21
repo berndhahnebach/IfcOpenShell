@@ -582,6 +582,15 @@ void MainWindow::setupStatus() {
                     vp->setAutoPivotOnSelect(enabled);
             });
 
+    // Zoom to mouse position: apply the persisted choice and re-apply live.
+    if (auto* vp = viewport_widget_->viewport())
+        vp->setZoomToMouse(AppSettings::instance().zoomToMouse());
+    connect(&AppSettings::instance(), &AppSettings::zoomToMouseChanged, this,
+            [this](bool enabled) {
+                if (auto* vp = viewport_widget_->viewport())
+                    vp->setZoomToMouse(enabled);
+            });
+
     connect(session_state_, &bonsaiviewer::SessionState::statusMessageChanged,
             this, [this](const QString& mode, const QString& detail) {
         status_mode_label_->setText(mode);

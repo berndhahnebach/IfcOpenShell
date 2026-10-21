@@ -77,6 +77,7 @@ private:
     QSpinBox* hiz_resolution_spin_ = nullptr;
     QComboBox* nav_preset_combo_ = nullptr;
     QCheckBox* auto_pivot_on_select_check_ = nullptr;
+    QCheckBox* zoom_to_mouse_check_ = nullptr;
     QComboBox* theme_mode_combo_ = nullptr;
     QWidget* theme_custom_body_ = nullptr;
     std::vector<ThemeColorEditor> theme_color_editors_;

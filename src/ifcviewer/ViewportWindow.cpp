@@ -2043,8 +2043,15 @@ void ViewportWindow::wheelEvent(QWheelEvent* event) {
             << "[wgpu] fly speed: " << QString::number(core_.flySpeed(), 'f', 2) << " m/s";
         return;
     }
-    // Orbit mode: zoom in/out around the pivot (math in ViewportCore).
-    core_.dollyBy(notches);
+    // Orbit mode: zoom in/out toward the cursor or the screen centre (math
+    // in ViewportCore).
+    if (zoom_to_mouse_) {
+        const QPointF pos = event->position();
+        core_.dollyTowardCursor(notches, int(pos.x() * devicePixelRatio()),
+                                int(pos.y() * devicePixelRatio()));
+    } else {
+        core_.dollyBy(notches);
+    }
     // Pivot afterglow on wheel — visible for 600 ms so the user can see
     // what they're zooming around without holding a drag.
     core_.setPivotIndicatorVisible(true, 600);
