@@ -49,10 +49,9 @@ T gather_value(Fn&& fn) {
 } // namespace
 
 full_buffer_impl::full_buffer_impl(const std::string& fn) {
-#ifdef _MSC_VER
-    std::wstring fn_ws = ifcopenshell::path::from_utf8(fn);
-    const wchar_t* fn_wide = fn_ws.c_str();
-    auto stream = _wfopen(fn_wide, L"rb");
+#ifdef _WIN32
+    // fn is UTF-8; plain fopen() would read it in the ANSI code page.
+    auto stream = _wfopen(std::filesystem::u8path(fn).c_str(), L"rb");
 #else
     auto stream = fopen(fn.c_str(), "rb");
 #endif
@@ -87,10 +86,8 @@ paged_file_impl::paged_file_impl(const std::string& fn, size_t page_size, size_t
     : fn_(fn)
     , page_size_(std::max<size_t>(512, page_size))
     , capacity_(std::max<size_t>(2, cap)) {
-#ifdef _MSC_VER
-    std::wstring fn_ws = ifcopenshell::path::from_utf8(fn);
-    const wchar_t* fn_wide = fn_ws.c_str();
-    fp_ = _wfopen(fn_wide, L"rb");
+#ifdef _WIN32
+    fp_ = _wfopen(std::filesystem::u8path(fn).c_str(), L"rb");
 #else
     fp_ = fopen(fn.c_str(), "rb");
 #endif
@@ -212,7 +209,7 @@ void paged_file_impl::evict_() const {
 
 #ifdef USE_MMAP
 mmap_impl::mmap_impl(const std::string& fn) {
-    map_.open(boost::filesystem::path(ifcopenshell::path::from_utf8(fn)));
+    map_.open(boost::filesystem::path(std::filesystem::u8path(fn).native()));
     if (!map_.is_open()) {
         throw std::runtime_error("Failed to open mapped_file_source");
     }

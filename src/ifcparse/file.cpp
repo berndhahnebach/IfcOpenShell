@@ -321,7 +321,7 @@ ifcopenshell::filetype ifcopenshell::guess_file_type(const std::string& fn) {
     // The error_code overloads report inaccessible paths as "not there"
     // instead of throwing, matching the previous stat()-based behaviour.
     std::error_code ec;
-    const fs::path path(ifcopenshell::path::from_utf8(fn));
+    const fs::path path = fs::u8path(fn);
     if (!fs::exists(path, ec)) {
         // @todo this is just weird, but for consistency with earlier behaviour
         // for now the only intent for this function is to auto-detect RocksDB
