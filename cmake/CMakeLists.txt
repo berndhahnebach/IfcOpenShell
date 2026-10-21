@@ -444,6 +444,12 @@ else()
     add_definitions(-DBOOST_ALL_NO_LIB)
 endif()
 
+# Boost.DLL only declares BOOST_DLL_ALIAS symbols on MinGW unless forced,
+# leaving plugins without their ifcopenshell_plugin_abi_v2 export.
+if(MINGW)
+    add_definitions(-DBOOST_DLL_FORCE_ALIAS_INSTANTIATION)
+endif()
+
 if(WASM_BUILD)
     set(BOOST_COMPONENTS)
 else()
