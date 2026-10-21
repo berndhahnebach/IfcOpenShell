@@ -607,14 +607,11 @@ void ViewportCore::setBackgroundColor(float r, float g, float b, float a) {
     host_->requestFrame();
 }
 
-bool ViewportCore::frameSelection() {
-    if (selection_.count() == 0) return false;
-    float lo[3] = {  std::numeric_limits<float>::infinity(),
-                     std::numeric_limits<float>::infinity(),
-                     std::numeric_limits<float>::infinity() };
-    float hi[3] = { -std::numeric_limits<float>::infinity(),
-                    -std::numeric_limits<float>::infinity(),
-                    -std::numeric_limits<float>::infinity() };
+bool ViewportCore::selectionAabb(float lo[3], float hi[3]) const {
+    for (int i = 0; i < 3; ++i) {
+        lo[i] =  std::numeric_limits<float>::infinity();
+        hi[i] = -std::numeric_limits<float>::infinity();
+    }
     bool any = false;
     for (uint32_t id : selection_.selectionIds()) {
         float mn[3], mx[3];
@@ -625,17 +622,55 @@ bool ViewportCore::frameSelection() {
         }
         any = true;
     }
-    if (!any) return false;
+    return any;
+}
+
+bool ViewportCore::frameSelection() {
+    if (selection_.count() == 0) return false;
+    float lo[3], hi[3];
+    if (!selectionAabb(lo, hi)) return false;
     frameAabb(lo, hi, 1.30f);
     return true;
+}
+
+bool ViewportCore::setOrbitPivotToSelection() {
+    float lo[3], hi[3];
+    has_orbit_pivot_ = selection_.count() > 0 && selectionAabb(lo, hi);
+    if (has_orbit_pivot_) {
+        orbit_pivot_ = 0.5f * (Eigen::Vector3f(lo[0], lo[1], lo[2])
+                             + Eigen::Vector3f(hi[0], hi[1], hi[2]));
+    }
+    return has_orbit_pivot_;
 }
 
 void ViewportCore::orbitBy(float dx_px, float dy_px) {
     // 0.4 deg/px matches the GL viewport. pitch is clamped just shy of
     // the pole so orbitEye() stays well-conditioned.
+    const float old_yaw_deg   = camera_yaw_deg_;
+    const float old_pitch_deg = camera_pitch_deg_;
     camera_yaw_deg_   -= dx_px * 0.4f;
     camera_pitch_deg_ += dy_px * 0.4f;
     camera_pitch_deg_ = std::clamp(camera_pitch_deg_, -89.9f, 89.9f);
+
+    // Orbit around a separate pivot: rotate the target about the pivot by
+    // the same rotation the view direction just got (pitch about the old
+    // horizontal right axis, then yaw about +Z), so eye and target turn
+    // together around the pivot.
+    if (has_orbit_pivot_) {
+        constexpr float kDeg2Rad = kPiF / 180.0f;
+        const float yaw    = old_yaw_deg * kDeg2Rad;
+        const float dyaw   = (camera_yaw_deg_   - old_yaw_deg)   * kDeg2Rad;
+        const float dpitch = (camera_pitch_deg_ - old_pitch_deg) * kDeg2Rad;
+        const Eigen::Vector3f pitch_axis(std::sin(yaw), -std::cos(yaw), 0.0f);
+        const Eigen::Matrix3f rot =
+            (Eigen::AngleAxisf(dyaw, Eigen::Vector3f::UnitZ())
+           * Eigen::AngleAxisf(dpitch, pitch_axis)).toRotationMatrix();
+        const Eigen::Vector3f target(camera_target_[0], camera_target_[1], camera_target_[2]);
+        const Eigen::Vector3f moved = orbit_pivot_ + rot * (target - orbit_pivot_);
+        camera_target_[0] = moved.x();
+        camera_target_[1] = moved.y();
+        camera_target_[2] = moved.z();
+    }
     host_->requestFrame();
 }
 
@@ -677,9 +712,11 @@ void ViewportCore::dollyBy(float notches) {
     host_->requestFrame();
 }
 
-void ViewportCore::setPivotIndicatorVisible(bool visible, int hide_after_ms) {
+void ViewportCore::setPivotIndicatorVisible(bool visible, int hide_after_ms,
+                                            bool at_orbit_pivot) {
     pivot_indicator_visible_ = visible;
     pivot_indicator_hide_ms_ = hide_after_ms;
+    pivot_indicator_at_orbit_pivot_ = at_orbit_pivot;
     if (visible && hide_after_ms > 0) pivot_indicator_timer_.start();
     else                              pivot_indicator_timer_.invalidate();
     host_->requestFrame();
@@ -8105,7 +8142,17 @@ void ViewportCore::render() {
     // has it gated on (drag) or an afterglow is still running; in the latter
     // case keep frames coming so the one that clears it actually lands.
     const bool pivot_visible = pivotIndicatorVisible();
-    axis_indicator_.encodePivot(pass, overlay_frame, pivot_visible);
+    if (pivot_visible && pivot_indicator_at_orbit_pivot_ && has_orbit_pivot_) {
+        // Triad at the orbit pivot, sized for its own distance from the eye.
+        OverlayFrame pivot_frame = overlay_frame;
+        const Eigen::Vector3f eye = orbitEye(camera_target_, camera_distance_,
+                                             camera_yaw_deg_, camera_pitch_deg_);
+        pivot_frame.camera_target   = orbit_pivot_;
+        pivot_frame.camera_distance = (eye - orbit_pivot_).norm();
+        axis_indicator_.encodePivot(pass, pivot_frame, pivot_visible);
+    } else {
+        axis_indicator_.encodePivot(pass, overlay_frame, pivot_visible);
+    }
     if (pivot_visible && pivot_indicator_timer_.isValid()) host_->requestFrame();
 
     // Remaining in-pass overlays (highlight triangles, overlay lines/points).

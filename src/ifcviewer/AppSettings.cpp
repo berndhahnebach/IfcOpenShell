@@ -44,6 +44,7 @@ constexpr int kHizResolutionDefault = 256;
 constexpr int kHizResolutionFloor = 64;
 constexpr const char* kHizEnabledKey = "viewport/hiz_enabled";
 constexpr const char* kNavPresetKey = "viewport/nav_preset";
+constexpr const char* kAutoPivotOnSelectKey = "viewport/auto_pivot_on_select";
 }
 
 AppSettings& AppSettings::instance() {
@@ -215,6 +216,17 @@ void AppSettings::setNavPreset(NavPreset value) {
     emit navPresetChanged(value);
 }
 
+bool AppSettings::autoPivotOnSelect() const {
+    return auto_pivot_on_select_;
+}
+
+void AppSettings::setAutoPivotOnSelect(bool value) {
+    if (auto_pivot_on_select_ == value) return;
+    auto_pivot_on_select_ = value;
+    persist();
+    emit autoPivotOnSelectChanged(value);
+}
+
 void AppSettings::load() {
     QSettings settings;
     geometry_library_ = settings.value(kGeometryLibraryKey, kGeometryLibraryDefault).toString();
@@ -249,6 +261,7 @@ void AppSettings::load() {
             nav_preset_ = static_cast<NavPreset>(raw);
         }
     }
+    auto_pivot_on_select_ = settings.value(kAutoPivotOnSelectKey, true).toBool();
 }
 
 void AppSettings::persist() {
@@ -266,4 +279,5 @@ void AppSettings::persist() {
     settings.setValue(kHizResolutionKey, hiz_resolution_);
     settings.setValue(kHizEnabledKey, hiz_enabled_);
     settings.setValue(kNavPresetKey, static_cast<int>(nav_preset_));
+    settings.setValue(kAutoPivotOnSelectKey, auto_pivot_on_select_);
 }

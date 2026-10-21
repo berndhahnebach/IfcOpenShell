@@ -290,6 +290,8 @@ public:
     // No-op with an empty selection or no resolvable AABBs; returns whether it
     // framed anything. Uses the shared selection + computeObjectAabb/frameAabb.
     bool frameSelection();
+    // Union of the selected objects' world AABBs; false if none resolvable.
+    bool selectionAabb(float lo[3], float hi[3]) const;
 
     // ---- Incremental orbit navigation ---------------------------------------
     //
@@ -310,6 +312,15 @@ public:
     void panBy(float dx_px, float dy_px, int viewport_height_px);
     void dollyBy(float notches);
 
+    // Orbit pivot separate from the camera target. When set, orbitBy turns
+    // the camera around this point instead of the screen-centre target; the
+    // view is not moved when it is set. setOrbitPivotToSelection uses the
+    // centre of the selection's AABB and clears the pivot for an empty
+    // selection; returns whether a pivot is set.
+    bool setOrbitPivotToSelection();
+    void clearOrbitPivot() { has_orbit_pivot_ = false; }
+    bool hasOrbitPivot() const { return has_orbit_pivot_; }
+
     // ---- Pivot indicator ----------------------------------------------------
     //
     // The RGB triad drawn at the orbit target while the user navigates, so it's
@@ -319,7 +330,10 @@ public:
     // still shows the pivot for a moment. State lives here (not in the host) so
     // desktop and web behave identically; render() consults it each frame and
     // keeps requesting frames until an armed afterglow expires.
-    void setPivotIndicatorVisible(bool visible, int hide_after_ms = 0);
+    // `at_orbit_pivot` draws the triad at the orbit pivot (when one is set)
+    // instead of the camera target — used for orbit drags.
+    void setPivotIndicatorVisible(bool visible, int hide_after_ms = 0,
+                                  bool at_orbit_pivot = false);
     bool pivotIndicatorVisible() const;
 
     // ---- First-person / fly navigation --------------------------------------
@@ -1236,6 +1250,9 @@ private:
     // invalid so the triad stays up until the host clears it.
     Stopwatch             pivot_indicator_timer_;
     int                   pivot_indicator_hide_ms_ = 0;
+    bool                  pivot_indicator_at_orbit_pivot_ = false;
+    bool                  has_orbit_pivot_ = false;
+    Eigen::Vector3f       orbit_pivot_ = Eigen::Vector3f::Zero();
 
     // HiZ occlusion-cull pipeline group. Downsamples MSAA depth into a
     // mip pyramid; consumed by next-frame cull.

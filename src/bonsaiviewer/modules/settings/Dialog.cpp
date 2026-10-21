@@ -201,6 +201,12 @@ void SettingsDialog::setupUi() {
             "for Web; click + box-select use whichever the preset assigns.");
         form->addRow("Preset", nav_preset_combo_);
 
+        auto_pivot_on_select_check_ = new QCheckBox(body);
+        auto_pivot_on_select_check_->setToolTip(
+            "Selecting an object with the mouse makes it the rotation center. "
+            "The camera does not move; clicking empty space resets it.");
+        form->addRow("Rotate Around Selection", auto_pivot_on_select_check_);
+
         section->addBodyWidget(body);
         layout->addWidget(section);
 
@@ -388,6 +394,7 @@ void SettingsDialog::syncFromSettings() {
     hiz_enabled_check_->setChecked(AppSettings::instance().hizEnabled());
     hiz_resolution_spin_->setValue(AppSettings::instance().hizResolution());
     nav_preset_combo_->setCurrentIndex(static_cast<int>(AppSettings::instance().navPreset()));
+    auto_pivot_on_select_check_->setChecked(AppSettings::instance().autoPivotOnSelect());
     syncThemeSettings();
 }
 
@@ -436,6 +443,7 @@ void SettingsDialog::onAccepted() {
     AppSettings::instance().setHizResolution(hiz_resolution_spin_->value());
     AppSettings::instance().setNavPreset(
         static_cast<AppSettings::NavPreset>(nav_preset_combo_->currentIndex()));
+    AppSettings::instance().setAutoPivotOnSelect(auto_pivot_on_select_check_->isChecked());
     auto& interface_settings = bonsaiviewer::ViewerSettings::instance();
     interface_settings.setThemeMode(
         static_cast<bonsaiviewer::ViewerSettings::ThemeMode>(theme_mode_combo_->currentData().toInt()));

@@ -118,6 +118,11 @@ public:
     NavPreset navPreset() const;
     void setNavPreset(NavPreset value);
 
+    // Mouse selection moves the orbit pivot to the selected object; the
+    // camera itself does not move.
+    bool autoPivotOnSelect() const;
+    void setAutoPivotOnSelect(bool value);
+
 signals:
     void geometryLibraryChanged(const QString& value);
     void showStatsChanged(bool value);
@@ -132,6 +137,7 @@ signals:
     void hizResolutionChanged(int value);
     void hizEnabledChanged(bool value);
     void navPresetChanged(NavPreset value);
+    void autoPivotOnSelectChanged(bool value);
 
 private:
     AppSettings();
@@ -151,6 +157,7 @@ private:
     int hiz_resolution_ = 256;
     bool hiz_enabled_ = true;
     NavPreset nav_preset_ = NavPreset::Blender;
+    bool auto_pivot_on_select_ = true;
 };
 
 #endif // APPSETTINGS_H

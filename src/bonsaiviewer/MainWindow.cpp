@@ -573,6 +573,15 @@ void MainWindow::setupStatus() {
                     vp->setBackfaceCulling(enabled);
             });
 
+    // Auto pivot on mouse select: apply the persisted choice and re-apply live.
+    if (auto* vp = viewport_widget_->viewport())
+        vp->setAutoPivotOnSelect(AppSettings::instance().autoPivotOnSelect());
+    connect(&AppSettings::instance(), &AppSettings::autoPivotOnSelectChanged, this,
+            [this](bool enabled) {
+                if (auto* vp = viewport_widget_->viewport())
+                    vp->setAutoPivotOnSelect(enabled);
+            });
+
     connect(session_state_, &bonsaiviewer::SessionState::statusMessageChanged,
             this, [this](const QString& mode, const QString& detail) {
         status_mode_label_->setText(mode);

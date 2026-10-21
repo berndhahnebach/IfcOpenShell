@@ -1493,6 +1493,11 @@ void ViewportWindow::applyNavPreset(const char* name) {
     select_button_ = toQtBtn(b.select);  select_mods_ = toQtMod(b.select_mod);
 }
 
+void ViewportWindow::setAutoPivotOnSelect(bool enabled) {
+    auto_pivot_on_select_ = enabled;
+    if (!enabled) core_.clearOrbitPivot();
+}
+
 void ViewportWindow::setBackfaceCulling(bool enabled) {
     core_.setBackfaceCulling(enabled);
 }
@@ -1572,7 +1577,8 @@ void ViewportWindow::mousePressEvent(QMouseEvent* event) {
     if (event->button() == orbit_button_
         && (mods & Qt::KeyboardModifierMask) == orbit_mods_) {
         nav_drag_kind_ = NavDrag::Orbit;
-        core_.setPivotIndicatorVisible(true);  // hidden again on release
+        // hidden again on release; drawn at the orbit pivot when one is set
+        core_.setPivotIndicatorVisible(true, 0, /*at_orbit_pivot=*/true);
     } else if (event->button() == pan_button_
             && (mods & Qt::KeyboardModifierMask) == pan_mods_) {
         nav_drag_kind_ = NavDrag::Pan;
@@ -1633,6 +1639,7 @@ void ViewportWindow::mouseReleaseEvent(QMouseEvent* event) {
                 Log::info().noquote().nospace()
                     << "[wgpu marquee] replace " << ids.size() << " object_ids";
             }
+            if (auto_pivot_on_select_) core_.setOrbitPivotToSelection();
             nav_active_button_ = Qt::NoButton;
             nav_drag_kind_     = NavDrag::Inactive;
             updateVolumeReadout();
@@ -1726,6 +1733,9 @@ void ViewportWindow::mouseReleaseEvent(QMouseEvent* event) {
                 Log::info().noquote().nospace()
                     << "[wgpu pick] replace object_id=" << id;
             }
+            // Empty selection (click into the void) clears the pivot, so
+            // orbit falls back to the screen-centre target.
+            if (auto_pivot_on_select_) core_.setOrbitPivotToSelection();
             // Notify external listeners (bonsai mirrors picks into
             // SessionState). Emit even on miss (id == 0) so a clear
             // round-trips, matching the GL backend's emit-active-id
