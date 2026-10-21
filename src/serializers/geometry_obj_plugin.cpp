@@ -32,7 +32,11 @@ namespace {
 std::string obj_mtl_filename(const std::string& output_filename) {
 	std::filesystem::path path(ifcopenshell::path::from_utf8(output_filename));
 	path.replace_extension(ifcopenshell::path::from_utf8(".mtl"));
+#if defined(_MSC_VER) && defined(_UNICODE)
 	return ifcopenshell::path::to_utf8(path.native());
+#else
+	return path.string();
+#endif
 }
 
 }
