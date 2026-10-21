@@ -25,6 +25,9 @@
 #include <QMainWindow>
 #include <QStringList>
 
+class QDragEnterEvent;
+class QDragMoveEvent;
+class QDropEvent;
 class QLabel;
 #include <QElapsedTimer>
 class QDockWidget;
@@ -66,6 +69,11 @@ private:
     // Rebuilds `menu` from the persisted recent-projects list. Wired to the
     // menu's aboutToShow so it always reflects the current MRU state.
     void populateRecentMenu(QMenu* menu);
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dragMoveEvent(QDragMoveEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 private:
     QLabel* status_mode_label_ = nullptr;

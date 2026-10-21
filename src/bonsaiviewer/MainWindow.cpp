@@ -45,7 +45,11 @@
 
 #include <QAction>
 #include <QDockWidget>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
 #include <QFileInfo>
+#include <QMimeData>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
@@ -418,8 +422,49 @@ void MainWindow::setupRibbon() {
 }
 
 void MainWindow::setupViewport() {
+    setAcceptDrops(true);
     viewport_widget_ = new modules::viewport::ViewportPanel(this);
     setCentralWidget(viewport_widget_);
+    connect(viewport_widget_, &modules::viewport::ViewportPanel::ifcFilesDropped, this,
+            [this](const QStringList& paths) {
+                modules::models::commands::addLocalModels(*session_state_, paths);
+            });
+}
+
+namespace {
+
+bool acceptIfcFileDrag(QDropEvent* event) {
+    if (modules::models::commands::ifcFilesFromMime(event->mimeData()).isEmpty()) {
+        event->ignore();
+        return false;
+    }
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+    return true;
+}
+
+} // namespace
+
+// <# ************************************************************************************************>
+void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
+    acceptIfcFileDrag(event);
+}
+
+// <# ************************************************************************************************>
+void MainWindow::dragMoveEvent(QDragMoveEvent* event) {
+    acceptIfcFileDrag(event);
+}
+
+// <# ************************************************************************************************>
+void MainWindow::dropEvent(QDropEvent* event) {
+    const QStringList paths = modules::models::commands::ifcFilesFromMime(event->mimeData());
+    if (paths.isEmpty()) {
+        event->ignore();
+        return;
+    }
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+    modules::models::commands::addLocalModels(*session_state_, paths);
 }
 
 void MainWindow::setupPanels() {

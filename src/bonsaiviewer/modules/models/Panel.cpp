@@ -47,6 +47,13 @@ namespace {
 
 constexpr auto kDragMimeType = "application/x-bonsaiviewer-model-items";
 
+bool acceptIfcFileDrop(QDropEvent* event) {
+    if (commands::ifcFilesFromMime(event->mimeData()).isEmpty()) return false;
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+    return true;
+}
+
 QString idOf(const QModelIndex& index) {
     return index.sibling(index.row(), 0).data(FederationItemModel::IdRole).toString();
 }
@@ -125,11 +132,13 @@ protected:
             event->acceptProposedAction();
             return;
         }
+        if (acceptIfcFileDrop(event)) return;
         QTreeView::dragEnterEvent(event);
     }
 
     void dragMoveEvent(QDragMoveEvent* event) override {
         if (!event->mimeData()->hasFormat(QString::fromUtf8(kDragMimeType))) {
+            if (acceptIfcFileDrop(event)) return;
             QTreeView::dragMoveEvent(event);
             return;
         }
@@ -144,7 +153,14 @@ protected:
 
     void dropEvent(QDropEvent* event) override {
         if (!event->mimeData()->hasFormat(QString::fromUtf8(kDragMimeType))) {
-            QTreeView::dropEvent(event);
+            const QStringList paths = commands::ifcFilesFromMime(event->mimeData());
+            if (paths.isEmpty()) {
+                QTreeView::dropEvent(event);
+                return;
+            }
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+            commands::addLocalModels(*session_state_, paths);
             return;
         }
 

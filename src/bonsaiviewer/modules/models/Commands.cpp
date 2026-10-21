@@ -49,7 +49,9 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPointer>
+#include <QUrl>
 #include <QStandardPaths>
 #include <QThread>
 #include <QTreeView>
@@ -340,6 +342,55 @@ void loadModels(SessionState& session, const QStringList& paths, const QStringLi
 
 } // namespace detail
 
+// <# ************************************************************************************************>
+QStringList ifcFilesFromPaths(const QStringList& paths) {
+    QStringList ifc_paths;
+    for (const QString& path : paths) {
+        const QFileInfo info(path);
+        if (!info.isFile()) continue;
+        if (info.suffix().compare(QLatin1String("ifc"), Qt::CaseInsensitive) != 0) continue;
+        ifc_paths.push_back(path);
+    }
+    return ifc_paths;
+}
+
+// <# ************************************************************************************************>
+QStringList ifcFilesFromMime(const QMimeData* mime) {
+    if (!mime || !mime->hasUrls()) return {};
+    QStringList paths;
+    for (const QUrl& url : mime->urls()) {
+        if (!url.isLocalFile()) continue;
+        paths.push_back(url.toLocalFile());
+    }
+    return ifcFilesFromPaths(paths);
+}
+
+// <# ************************************************************************************************>
+void addLocalModels(SessionState& session, const QStringList& paths) {
+    if (paths.isEmpty()) return;
+
+    // Arm the false-origin guess if we're adding into a session with no
+    // models yet — the first model that finishes loading will set the
+    // origin via ViewportView. Checked here (before federation->addModel)
+    // because federation->addModel doesn't yet populate SessionState's
+    // model mapping; sessionModelIds() reflects pre-add state at this point.
+    if (session.sessionModelIds().isEmpty()) {
+        armFederatedFalseOriginGuess();
+    }
+
+    QStringList accepted_paths;
+    QStringList accepted_model_ids;
+    for (const auto& path : paths) {
+        const QString model_id =
+            session.federation()->addModel(path, QFileInfo(path).fileName());
+        if (model_id.isEmpty()) continue;
+        accepted_paths << path;
+        accepted_model_ids << model_id;
+    }
+    detail::loadModels(session, accepted_paths, accepted_model_ids);
+    session.notifyModelsChanged();
+}
+
 void addModel(SessionState& session, QWidget& host) {
     AddModelDialog dialog(&host);
     if (dialog.exec() != QDialog::Accepted) return;
@@ -398,26 +449,7 @@ void addModel(SessionState& session, QWidget& host) {
         return;
     }
 
-    // Arm the false-origin guess if we're adding into a session with no
-    // models yet — the first model that finishes loading will set the
-    // origin via ViewportView. Checked here (before federation->addModel)
-    // because federation->addModel doesn't yet populate SessionState's
-    // model mapping; sessionModelIds() reflects pre-add state at this point.
-    if (session.sessionModelIds().isEmpty()) {
-        armFederatedFalseOriginGuess();
-    }
-
-    QStringList accepted_paths;
-    QStringList accepted_model_ids;
-    for (const auto& path : paths) {
-        const QString model_id =
-            session.federation()->addModel(path, QFileInfo(path).fileName());
-        if (model_id.isEmpty()) continue;
-        accepted_paths << path;
-        accepted_model_ids << model_id;
-    }
-    detail::loadModels(session, accepted_paths, accepted_model_ids);
-    session.notifyModelsChanged();
+    addLocalModels(session, paths);
 }
 
 void addModelFromCloud(SessionState& session, QWidget& host) {

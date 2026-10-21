@@ -27,6 +27,7 @@
 #include <QStringList>
 #include <cstdint>
 
+class QMimeData;
 class QWidget;
 class ViewportWindow;
 namespace bonsaiviewer { class SessionState; }
@@ -72,6 +73,49 @@ void loadModel(SessionState& session, ViewportWindow& viewport, const QString& m
 // nothing; if none of them do, the camera is left where it is.
 void viewModels(SessionState& session, ViewportWindow& viewport, const QStringList& model_ids);
 void addModel(SessionState& session, QWidget& host);
+
+// <# ************************************************************************************************>
+// Local .ifc paths carried by a file drag.
+//
+// Parameters
+// ----------
+// paths : QStringList
+//     Filesystem paths from a drop or a file dialog.
+//
+// Returns
+// -------
+// QStringList
+//     Existing files whose suffix is .ifc, in the original order.
+QStringList ifcFilesFromPaths(const QStringList& paths);
+
+// <# ************************************************************************************************>
+// Local .ifc paths carried by a file drag.
+//
+// Parameters
+// ----------
+// mime : QMimeData*
+//     Drag payload. Only local-file URLs are considered.
+//
+// Returns
+// -------
+// QStringList
+//     Existing files whose suffix is .ifc, in the original order.
+QStringList ifcFilesFromMime(const QMimeData* mime);
+
+// <# ************************************************************************************************>
+// Add local files to the federation and queue them for loading.
+//
+// Parameters
+// ----------
+// session : SessionState&
+//     Session that owns the federation and the loader.
+// paths : QStringList
+//     Source paths. Same paths Add Model accepts after a file is chosen.
+//
+// Notes
+// -----
+// Arms the federated false-origin guess when the session has no models yet.
+void addLocalModels(SessionState& session, const QStringList& paths);
 // Connector picker → pull_models_interactive → addCloudModel + load.
 // Reachable from AddModelDialog's CloudModel button; the underlying call
 // is async, so addModelFromCloud returns immediately after kicking it off.

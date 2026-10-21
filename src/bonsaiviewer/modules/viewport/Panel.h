@@ -21,8 +21,10 @@
 #ifndef IFCINTERFACE_MODULES_VIEWPORT_PANEL_H
 #define IFCINTERFACE_MODULES_VIEWPORT_PANEL_H
 
+#include <QStringList>
 #include <QWidget>
 
+class QDropEvent;
 class ViewportWindow;
 
 namespace bonsaiviewer::modules::viewport {
@@ -32,10 +34,28 @@ class ViewportPanel : public QWidget {
 
 public:
     explicit ViewportPanel(QWidget* parent = nullptr);
+    ~ViewportPanel() override;
 
     ViewportWindow* viewport() const { return viewport_; }
+    void deliverDroppedIfcFiles(const QStringList& paths);
+
+signals:
+    void ifcFilesDropped(const QStringList& paths);
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
+    bool acceptIfcDrop(QDropEvent* event);
+
+#ifdef Q_OS_WIN
+    void registerNativeFileDrop();
+    void revokeNativeFileDrop();
+    void* file_drop_target_ = nullptr;
+    void* registered_drop_hwnd_ = nullptr;
+    bool ole_initialized_here_ = false;
+#endif
+
     ViewportWindow* viewport_ = nullptr;
     QWidget* viewport_container_ = nullptr;
 };
