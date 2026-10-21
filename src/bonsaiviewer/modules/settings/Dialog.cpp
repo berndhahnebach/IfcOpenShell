@@ -103,6 +103,12 @@ void SettingsDialog::setupUi() {
     loading_form->setHorizontalSpacing(16);
     loading_form->setVerticalSpacing(10);
 
+    write_ifcview_cache_check_ = new QCheckBox(loading_body);
+    write_ifcview_cache_check_->setToolTip(
+        "Write a .ifcview cache file next to each streamed IFC so the next "
+        "open is faster. Existing .ifcview files are still read when off.");
+    loading_form->addRow("Write .ifcview Cache", write_ifcview_cache_check_);
+
     void_limit_spin_ = new QSpinBox(loading_body);
     void_limit_spin_->setRange(0, 100000);
     loading_form->addRow("Void Limit", void_limit_spin_);
@@ -373,6 +379,7 @@ void SettingsDialog::syncFromSettings() {
     show_stats_check_->setChecked(AppSettings::instance().showStats());
     backface_culling_check_->setChecked(AppSettings::instance().backfaceCulling());
     void_limit_spin_->setValue(AppSettings::instance().voidLimit());
+    write_ifcview_cache_check_->setChecked(AppSettings::instance().writeIfcViewCache());
     deflection_tolerance_spin_->setValue(AppSettings::instance().deflectionTolerance());
     angular_tolerance_spin_->setValue(AppSettings::instance().angularTolerance());
     min_pixel_radius_spin_->setValue(AppSettings::instance().minPixelRadius());
@@ -419,6 +426,7 @@ void SettingsDialog::onAccepted() {
     AppSettings::instance().setShowStats(show_stats_check_->isChecked());
     AppSettings::instance().setBackfaceCulling(backface_culling_check_->isChecked());
     AppSettings::instance().setVoidLimit(void_limit_spin_->value());
+    AppSettings::instance().setWriteIfcViewCache(write_ifcview_cache_check_->isChecked());
     AppSettings::instance().setDeflectionTolerance(deflection_tolerance_spin_->value());
     AppSettings::instance().setAngularTolerance(angular_tolerance_spin_->value());
     AppSettings::instance().setMinPixelRadius(min_pixel_radius_spin_->value());

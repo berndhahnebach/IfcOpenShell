@@ -66,6 +66,11 @@ public:
     int voidLimit() const;
     void setVoidLimit(int value);
 
+    // Write a .ifcview cache next to each streamed IFC for faster reopen.
+    // Existing .ifcview files are still read when this is off.
+    bool writeIfcViewCache() const;
+    void setWriteIfcViewCache(bool value);
+
     // Mesher tolerances passed straight to the IfcOpenShell iterator.
     // Linear deflection bounds the chord error between a curve and its
     // triangulation, in model length units; angular deflection bounds the
@@ -118,6 +123,7 @@ signals:
     void showStatsChanged(bool value);
     void backfaceCullingChanged(bool value);
     void voidLimitChanged(int value);
+    void writeIfcViewCacheChanged(bool value);
     void deflectionToleranceChanged(double value);
     void angularToleranceChanged(double value);
     void minPixelRadiusChanged(double value);
@@ -136,6 +142,7 @@ private:
     bool show_stats_ = false;
     bool backface_culling_ = true;
     int void_limit_ = 30;
+    bool write_ifcview_cache_ = true;
     double deflection_tolerance_ = 0.002;
     double angular_tolerance_ = 1.0;
     double min_pixel_radius_ = 2.0;

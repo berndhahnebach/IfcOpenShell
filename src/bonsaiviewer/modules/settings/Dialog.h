@@ -73,6 +73,7 @@ private:
     QDoubleSpinBox* motion_min_pixel_radius_spin_ = nullptr;
     QDoubleSpinBox* lod1_pixel_threshold_spin_ = nullptr;
     QCheckBox* hiz_enabled_check_ = nullptr;
+    QCheckBox* write_ifcview_cache_check_ = nullptr;
     QSpinBox* hiz_resolution_spin_ = nullptr;
     QComboBox* nav_preset_combo_ = nullptr;
     QComboBox* theme_mode_combo_ = nullptr;

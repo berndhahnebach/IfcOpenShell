@@ -22,6 +22,7 @@
 
 #include "ElementRegistry.h"
 #include "modules/connectors/Registry.h"
+#include "../ifcviewer/AppSettings.h"
 #include "../ifcviewer/Federation.h"
 #include "../ifcviewer/SceneLoader.h"
 
@@ -46,7 +47,9 @@ void SessionState::createLoader(ViewportWindow* viewport) {
     Q_ASSERT(!loader_);
     loader_ = new SceneLoader(viewport, this);
     loader_->setShouldReadIfcView(true);
-    loader_->setShouldWriteIfcView(true);
+    loader_->setShouldWriteIfcView(AppSettings::instance().writeIfcViewCache());
+    connect(&AppSettings::instance(), &AppSettings::writeIfcViewCacheChanged,
+            loader_, &SceneLoader::setShouldWriteIfcView);
     element_registry_->bindLoader(loader_);
 
     auto format_elapsed = [](qint64 ms) {

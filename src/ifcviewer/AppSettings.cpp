@@ -28,6 +28,7 @@ constexpr const char* kShowStatsKey = "viewport/show_stats";
 constexpr const char* kBackfaceCullingKey = "viewport/backface_culling";
 constexpr const char* kVoidLimitKey = "loading/void_limit";
 constexpr int kVoidLimitDefault = 30;
+constexpr const char* kWriteIfcViewCacheKey = "loading/write_ifcview_cache";
 constexpr const char* kDeflectionToleranceKey = "loading/deflection_tolerance";
 constexpr double kDeflectionToleranceDefault = 0.002;
 constexpr const char* kAngularToleranceKey = "loading/angular_tolerance";
@@ -97,6 +98,17 @@ void AppSettings::setVoidLimit(int value) {
     void_limit_ = value;
     persist();
     emit voidLimitChanged(value);
+}
+
+bool AppSettings::writeIfcViewCache() const {
+    return write_ifcview_cache_;
+}
+
+void AppSettings::setWriteIfcViewCache(bool value) {
+    if (write_ifcview_cache_ == value) return;
+    write_ifcview_cache_ = value;
+    persist();
+    emit writeIfcViewCacheChanged(value);
 }
 
 double AppSettings::deflectionTolerance() const {
@@ -210,6 +222,7 @@ void AppSettings::load() {
     backface_culling_ = settings.value(kBackfaceCullingKey, true).toBool();
     void_limit_ = settings.value(kVoidLimitKey, kVoidLimitDefault).toInt();
     if (void_limit_ < 0) void_limit_ = 0;
+    write_ifcview_cache_ = settings.value(kWriteIfcViewCacheKey, true).toBool();
     deflection_tolerance_ = settings.value(kDeflectionToleranceKey, kDeflectionToleranceDefault).toDouble();
     if (deflection_tolerance_ <= 0.0) deflection_tolerance_ = kDeflectionToleranceDefault;
     angular_tolerance_ = settings.value(kAngularToleranceKey, kAngularToleranceDefault).toDouble();
@@ -244,6 +257,7 @@ void AppSettings::persist() {
     settings.setValue(kShowStatsKey, show_stats_);
     settings.setValue(kBackfaceCullingKey, backface_culling_);
     settings.setValue(kVoidLimitKey, void_limit_);
+    settings.setValue(kWriteIfcViewCacheKey, write_ifcview_cache_);
     settings.setValue(kDeflectionToleranceKey, deflection_tolerance_);
     settings.setValue(kAngularToleranceKey, angular_tolerance_);
     settings.setValue(kMinPixelRadiusKey, min_pixel_radius_);
