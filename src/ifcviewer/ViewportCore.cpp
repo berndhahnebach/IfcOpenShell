@@ -8242,8 +8242,13 @@ void ViewportCore::render() {
     }
 
     // ---- Interactive heartbeat log --------------------------------------
-    if (bench_total_ == 0) {
-        ++interactive_frame_count_;
+    // Off by default; WGPU_FRAME_LOG=1 prints the per-frame [frame] line.
+    static const bool frame_log_on = []{
+        const char* e = std::getenv("WGPU_FRAME_LOG");
+        return e && e[0] == '1';
+    }();
+    if (bench_total_ == 0) ++interactive_frame_count_;
+    if (bench_total_ == 0 && frame_log_on) {
         const float ms = float(frame_timer.nsecsElapsed()) / 1e6f;
         std::uint64_t total_vbo = 0, total_ebo = 0, total_ssbo = 0;
         std::uint64_t total_cpu_shadow = 0;
