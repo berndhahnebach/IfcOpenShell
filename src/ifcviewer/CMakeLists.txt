@@ -111,6 +111,19 @@ if(WIN32)
         IMPORTED_IMPLIB   "${wgpu_native_SOURCE_DIR}/lib/${_wgpu_lib}"
         IMPORTED_LOCATION "${wgpu_native_SOURCE_DIR}/lib/${_wgpu_runtime}"
     )
+    # No rpath on Windows: stage the DLL next to the executables so they
+    # run from the build tree.
+    if(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        if(CMAKE_CONFIGURATION_TYPES)
+            foreach(_config IN LISTS CMAKE_CONFIGURATION_TYPES)
+                file(COPY "${wgpu_native_SOURCE_DIR}/lib/${_wgpu_runtime}"
+                     DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${_config}")
+            endforeach()
+        else()
+            file(COPY "${wgpu_native_SOURCE_DIR}/lib/${_wgpu_runtime}"
+                 DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+        endif()
+    endif()
 endif()
 
 # Expose the lib dir so dependents can put it on their rpath.
